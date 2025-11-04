@@ -5,6 +5,7 @@ editor: visual
 
 ```{r}
 library(dplyr)
+library(ggplot2)
 week1 <- read.csv("/Users/connorfeldman/Documents_Folder/College/MSDS/EDAV/Final_Project/114239_nfl_competition_files_published_analytics_final/train/input_2023_w01.csv")
 week2 <- read.csv("/Users/connorfeldman/Documents_Folder/College/MSDS/EDAV/Final_Project/114239_nfl_competition_files_published_analytics_final/train/input_2023_w02.csv")
 week3 <- read.csv("/Users/connorfeldman/Documents_Folder/College/MSDS/EDAV/Final_Project/114239_nfl_competition_files_published_analytics_final/train/input_2023_w03.csv")
