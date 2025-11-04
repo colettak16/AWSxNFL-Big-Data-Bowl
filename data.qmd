@@ -1,5 +1,124 @@
 # Data
+2.1 Technical Description:
+
+All of the data for this project is directly provided by AWS/the NFL itself, via the Kaggle competition. However, the data is unseen by the general public and does not have any published work on it already. The data will be static for the duration of the project, with no updates.
+
+The data can be broken down into 3 main categories:
+
+Supplementary
+
+This is a single csv (41 columns by 18009 rows) that provides high-level contextual data about each play from the 2023 NFL season. Every row is identified by a unique play_id, coming from each unique game within a given week 1-18. This table provides info such as pre-snap offensive formation, play outcome, pre-snap score, time of game the play happened at, as well as other relevant info.
+Input
+
+This is broken down into 18 csv files (23 columns by ~30k rows each) – one for each week of the season. Within each file, we have groups of rows for every player that participated in a game that week. For every player, there are multiple rows for every play they participated in, corresponding to the number of frames within that play.
+Output
+
+This is also broken down into 18 csv files (6 columns by ~30k rows each), with each file again representing one week of the season. The data in this file contains the play ID, the player ID, and their final position on the field at the time the play ends.
 
 ## Description
 
+```{r}
+in_week1 <- read.csv("data/train/input_2023_w01.csv")
+in_week2 <- read.csv("data/train/input_2023_w02.csv")
+in_week3 <- read.csv("data/train/input_2023_w03.csv")
+in_week4 <- read.csv("data/train/input_2023_w04.csv")
+in_week5 <- read.csv("data/train/input_2023_w05.csv")
+in_week6 <- read.csv("data/train/input_2023_w06.csv")
+in_week7 <- read.csv("data/train/input_2023_w07.csv")
+in_week8 <- read.csv("data/train/input_2023_w08.csv")
+in_week9 <- read.csv("data/train/input_2023_w09.csv")
+in_week10 <- read.csv("data/train/input_2023_w10.csv")
+in_week11 <- read.csv("data/train/input_2023_w11.csv")
+in_week12 <- read.csv("data/train/input_2023_w12.csv")
+in_week13 <- read.csv("data/train/input_2023_w13.csv")
+in_week14 <- read.csv("data/train/input_2023_w14.csv")
+in_week15 <- read.csv("data/train/input_2023_w15.csv")
+in_week16 <- read.csv("data/train/input_2023_w16.csv")
+in_week17 <- read.csv("data/train/input_2023_w17.csv")
+in_week18 <- read.csv("data/train/input_2023_w18.csv")
+
+out_week1 <- read.csv("data/train/output_2023_w01.csv")
+out_week2 <- read.csv("data/train/output_2023_w02.csv")
+out_week3 <- read.csv("data/train/output_2023_w03.csv")
+out_week4 <- read.csv("data/train/output_2023_w04.csv")
+out_week5 <- read.csv("data/train/output_2023_w05.csv")
+out_week6 <- read.csv("data/train/output_2023_w06.csv")
+out_week7 <- read.csv("data/train/output_2023_w07.csv")
+out_week8 <- read.csv("data/train/output_2023_w08.csv")
+out_week9 <- read.csv("data/train/output_2023_w09.csv")
+out_week10 <- read.csv("data/train/output_2023_w10.csv")
+out_week11 <- read.csv("data/train/output_2023_w11.csv")
+out_week12 <- read.csv("data/train/output_2023_w12.csv")
+out_week13 <- read.csv("data/train/output_2023_w13.csv")
+out_week14 <- read.csv("data/train/output_2023_w14.csv")
+out_week15 <- read.csv("data/train/output_2023_w15.csv")
+out_week16 <- read.csv("data/train/output_2023_w16.csv")
+out_week17 <- read.csv("data/train/output_2023_w17.csv")
+out_week18 <- read.csv("data/train/output_2023_w18.csv")
+
+supplementary <- read.csv("data/supplementary_data.csv")
+
+```
+
+
 ## Missing value analysis
+```{r}
+all_dfs <- list(file1 = in_week1, 
+                file2 = in_week2, 
+                file3 = in_week3, 
+                file4 = in_week4, 
+                file5 = in_week5, 
+                file6 = in_week6, 
+                file7 = in_week7, 
+                file8 = in_week8, 
+                file9 = in_week9, 
+                file10 = in_week10, 
+                file11 = in_week11, 
+                file12 = in_week12, 
+                file13 = in_week13, 
+                file14 = in_week14, 
+                file15 = in_week15, 
+                file16 = in_week16, 
+                file17 = in_week17, 
+                file18 = in_week18, 
+                file19 = out_week1, 
+                file20 = out_week2, 
+                file21 = out_week3, 
+                file22 = out_week4, 
+                file22 = out_week5, 
+                file24 = out_week6, 
+                file25 = out_week7, 
+                file26 = out_week8, 
+                file27 = out_week9, 
+                file28 = out_week10, 
+                file29 = out_week11, 
+                file30 = out_week12, 
+                file31 = out_week13, 
+                file32 = out_week14, 
+                file33 = out_week15, 
+                file34 = out_week16, 
+                file35 = out_week17, 
+                file36 = out_week18, 
+                file37 = supplementary
+                )
+
+library(tidyverse)
+
+na_summary <- map_dfr(names(all_dfs), function(name) {
+  df <- all_dfs[[name]]
+  na_counts <- colSums(is.na(df))
+  total_na <- sum(na_counts)
+  
+  tibble(
+    dataframe = name,
+    total_na = total_na,
+    columns_with_na = paste(names(na_counts[na_counts > 0]), collapse = ", ")
+  )
+}) %>% 
+  filter(total_na > 0)
+
+na_summary
+
+
+```
+
