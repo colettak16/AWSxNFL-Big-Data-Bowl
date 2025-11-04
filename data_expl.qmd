@@ -1,0 +1,297 @@
+---
+title: "Initial_exp"
+editor: visual
+---
+
+```{r}
+library(dplyr)
+week1 <- read.csv("/Users/connorfeldman/Documents_Folder/College/MSDS/EDAV/Final_Project/114239_nfl_competition_files_published_analytics_final/train/input_2023_w01.csv")
+week2 <- read.csv("/Users/connorfeldman/Documents_Folder/College/MSDS/EDAV/Final_Project/114239_nfl_competition_files_published_analytics_final/train/input_2023_w02.csv")
+week3 <- read.csv("/Users/connorfeldman/Documents_Folder/College/MSDS/EDAV/Final_Project/114239_nfl_competition_files_published_analytics_final/train/input_2023_w03.csv")
+week4 <- read.csv("/Users/connorfeldman/Documents_Folder/College/MSDS/EDAV/Final_Project/114239_nfl_competition_files_published_analytics_final/train/input_2023_w04.csv")
+week5 <- read.csv("/Users/connorfeldman/Documents_Folder/College/MSDS/EDAV/Final_Project/114239_nfl_competition_files_published_analytics_final/train/input_2023_w05.csv")
+week6 <- read.csv("/Users/connorfeldman/Documents_Folder/College/MSDS/EDAV/Final_Project/114239_nfl_competition_files_published_analytics_final/train/input_2023_w06.csv")
+week7 <- read.csv("/Users/connorfeldman/Documents_Folder/College/MSDS/EDAV/Final_Project/114239_nfl_competition_files_published_analytics_final/train/input_2023_w07.csv")
+week8 <- read.csv("/Users/connorfeldman/Documents_Folder/College/MSDS/EDAV/Final_Project/114239_nfl_competition_files_published_analytics_final/train/input_2023_w08.csv")
+week9 <- read.csv("/Users/connorfeldman/Documents_Folder/College/MSDS/EDAV/Final_Project/114239_nfl_competition_files_published_analytics_final/train/input_2023_w09.csv")
+week10 <- read.csv("/Users/connorfeldman/Documents_Folder/College/MSDS/EDAV/Final_Project/114239_nfl_competition_files_published_analytics_final/train/input_2023_w10.csv")
+week11 <- read.csv("/Users/connorfeldman/Documents_Folder/College/MSDS/EDAV/Final_Project/114239_nfl_competition_files_published_analytics_final/train/input_2023_w11.csv")
+week12 <- read.csv("/Users/connorfeldman/Documents_Folder/College/MSDS/EDAV/Final_Project/114239_nfl_competition_files_published_analytics_final/train/input_2023_w12.csv")
+week13 <- read.csv("/Users/connorfeldman/Documents_Folder/College/MSDS/EDAV/Final_Project/114239_nfl_competition_files_published_analytics_final/train/input_2023_w13.csv")
+week14 <- read.csv("/Users/connorfeldman/Documents_Folder/College/MSDS/EDAV/Final_Project/114239_nfl_competition_files_published_analytics_final/train/input_2023_w14.csv")
+week15 <- read.csv("/Users/connorfeldman/Documents_Folder/College/MSDS/EDAV/Final_Project/114239_nfl_competition_files_published_analytics_final/train/input_2023_w15.csv")
+week16 <- read.csv("/Users/connorfeldman/Documents_Folder/College/MSDS/EDAV/Final_Project/114239_nfl_competition_files_published_analytics_final/train/input_2023_w16.csv")
+week17 <- read.csv("/Users/connorfeldman/Documents_Folder/College/MSDS/EDAV/Final_Project/114239_nfl_competition_files_published_analytics_final/train/input_2023_w17.csv")
+week18 <- read.csv("/Users/connorfeldman/Documents_Folder/College/MSDS/EDAV/Final_Project/114239_nfl_competition_files_published_analytics_final/train/input_2023_w18.csv")
+
+WideReceivers1 <- week1 %>%
+  filter(player_position == "WR")
+WideReceivers2 <- week2 %>%
+  filter(player_position == "WR")
+WideReceivers3 <- week3 %>%
+  filter(player_position == "WR")
+WideReceivers4 <- week4 %>%
+  filter(player_position == "WR")
+WideReceivers5 <- week5 %>%
+  filter(player_position == "WR")
+WideReceivers6 <- week6 %>%
+  filter(player_position == "WR")
+WideReceivers7 <- week7 %>%
+  filter(player_position == "WR")
+WideReceivers8 <- week8 %>%
+  filter(player_position == "WR")
+WideReceivers9 <- week9 %>%
+  filter(player_position == "WR")
+WideReceivers10 <- week10 %>%
+  filter(player_position == "WR")
+WideReceivers11 <- week11 %>%
+  filter(player_position == "WR")
+WideReceivers12 <- week12 %>%
+  filter(player_position == "WR")
+WideReceivers13 <- week13 %>%
+  filter(player_position == "WR")
+WideReceivers14 <- week14 %>%
+  filter(player_position == "WR")
+WideReceivers15 <- week15 %>%
+  filter(player_position == "WR")
+WideReceivers16 <- week16 %>%
+  filter(player_position == "WR")
+WideReceivers17 <- week17 %>%
+  filter(player_position == "WR")
+WideReceivers18 <- week18 %>%
+  filter(player_position == "WR")
+
+#View(WideReceivers)
+
+total_distanceW1 <- WideReceivers1 %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceW2 <- WideReceivers2 %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+total_distanceW3 <- WideReceivers3 %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+total_distanceW4 <- WideReceivers4 %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+total_distanceW5 <- WideReceivers5 %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+total_distanceW6 <- WideReceivers6 %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+total_distanceW7 <- WideReceivers7 %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+total_distanceW8 <- WideReceivers8 %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+total_distanceW9 <- WideReceivers9 %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+total_distanceW10 <- WideReceivers10 %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+total_distanceW11 <- WideReceivers11 %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+total_distanceW12 <- WideReceivers12 %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+total_distanceW13 <- WideReceivers13 %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+total_distanceW14 <- WideReceivers14 %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+total_distanceW15 <- WideReceivers15 %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+total_distanceW16 <- WideReceivers16 %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+total_distanceW17 <- WideReceivers17 %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+total_distanceW18 <- WideReceivers18 %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceW1<- total_distanceW1 %>% mutate(group = "Week1")
+total_distanceW2<- total_distanceW1 %>% mutate(group = "Week2")
+total_distanceW3<- total_distanceW1 %>% mutate(group = "Week3")
+total_distanceW4<- total_distanceW1 %>% mutate(group = "Week4")
+total_distanceW5<- total_distanceW1 %>% mutate(group = "Week5")
+total_distanceW6<- total_distanceW1 %>% mutate(group = "Week6")
+total_distanceW7<- total_distanceW1 %>% mutate(group = "Week7")
+total_distanceW8<- total_distanceW1 %>% mutate(group = "Week8")
+total_distanceW9<- total_distanceW1 %>% mutate(group = "Week9")
+total_distanceW10<- total_distanceW1 %>% mutate(group = "Week10")
+total_distanceW11<- total_distanceW1 %>% mutate(group = "Week11")
+total_distanceW12<- total_distanceW1 %>% mutate(group = "Week12")
+total_distanceW13<- total_distanceW1 %>% mutate(group = "Week13")
+total_distanceW14<- total_distanceW1 %>% mutate(group = "Week14")
+total_distanceW15<- total_distanceW1 %>% mutate(group = "Week15")
+total_distanceW16<- total_distanceW1 %>% mutate(group = "Week16")
+total_distanceW17<- total_distanceW1 %>% mutate(group = "Week17")
+total_distanceW18 <-total_distanceW18 %>% mutate(group = "Week18")
+
+combined_distance <- bind_rows(total_distanceW1,total_distanceW2, total_distanceW3, total_distanceW4, total_distanceW5, total_distanceW6, total_distanceW7, total_distanceW8, total_distanceW9, total_distanceW10, total_distanceW11,total_distanceW12,total_distanceW13,total_distanceW14,total_distanceW15,total_distanceW16, total_distanceW17, total_distanceW18)
+
+
+ggplot(combined_distance, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  facet_wrap(~group, ncol = 1, scales = "free_y") +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal()
+```
