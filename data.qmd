@@ -120,5 +120,19 @@ na_summary <- map_dfr(names(all_dfs), function(name) {
 na_summary
 
 
+## All N/A values come from the supplementary data set -- most come the "penalty_yards" column
+supp_na_counts <- colSums(is.na(supplementary))
+no_pen_na <- is.na(supplementary['penalty_yards'])
+sum(no_pen_na)
+sum(supp_na_counts)
+
+# Show N/A values by column
+cols_with_na <- function(df) {
+  na_counts <- colSums(is.na(df))
+  na_counts[na_counts > 0]
+}
+cols_with_na(supplementary)
+
+
 ```
 
