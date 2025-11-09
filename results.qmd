@@ -1,1 +1,205 @@
 # Results
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+```
+
+
+```{r}
+in_week1 <- read.csv("data/train/input_2023_w01.csv")
+in_week2 <- read.csv("data/train/input_2023_w02.csv")
+in_week3 <- read.csv("data/train/input_2023_w03.csv")
+in_week4 <- read.csv("data/train/input_2023_w04.csv")
+in_week5 <- read.csv("data/train/input_2023_w05.csv")
+in_week6 <- read.csv("data/train/input_2023_w06.csv")
+in_week7 <- read.csv("data/train/input_2023_w07.csv")
+in_week8 <- read.csv("data/train/input_2023_w08.csv")
+in_week9 <- read.csv("data/train/input_2023_w09.csv")
+in_week10 <- read.csv("data/train/input_2023_w10.csv")
+in_week11 <- read.csv("data/train/input_2023_w11.csv")
+in_week12 <- read.csv("data/train/input_2023_w12.csv")
+in_week13 <- read.csv("data/train/input_2023_w13.csv")
+in_week14 <- read.csv("data/train/input_2023_w14.csv")
+in_week15 <- read.csv("data/train/input_2023_w15.csv")
+in_week16 <- read.csv("data/train/input_2023_w16.csv")
+in_week17 <- read.csv("data/train/input_2023_w17.csv")
+in_week18 <- read.csv("data/train/input_2023_w18.csv")
+
+
+```
+
+```{r}
+out_week1 <- read.csv("data/train/output_2023_w01.csv")
+out_week2 <- read.csv("data/train/output_2023_w02.csv")
+out_week3 <- read.csv("data/train/output_2023_w03.csv")
+out_week4 <- read.csv("data/train/output_2023_w04.csv")
+out_week5 <- read.csv("data/train/output_2023_w05.csv")
+out_week6 <- read.csv("data/train/output_2023_w06.csv")
+out_week7 <- read.csv("data/train/output_2023_w07.csv")
+out_week8 <- read.csv("data/train/output_2023_w08.csv")
+out_week9 <- read.csv("data/train/output_2023_w09.csv")
+out_week10 <- read.csv("data/train/output_2023_w10.csv")
+out_week11 <- read.csv("data/train/output_2023_w11.csv")
+out_week12 <- read.csv("data/train/output_2023_w12.csv")
+out_week13 <- read.csv("data/train/output_2023_w13.csv")
+out_week14 <- read.csv("data/train/output_2023_w14.csv")
+out_week15 <- read.csv("data/train/output_2023_w15.csv")
+out_week16 <- read.csv("data/train/output_2023_w16.csv")
+out_week17 <- read.csv("data/train/output_2023_w17.csv")
+out_week18 <- read.csv("data/train/output_2023_w18.csv")
+
+supplementary <- read.csv("data/supplementary_data.csv")
+
+```
+
+## Adding Offense/Defense Win Probability Columns
+
+```{r}
+# Create offense_win_probability_added and defense_win_probability_added columns
+# Logic: If possession_team == home_team, offense gets home WPA, defense gets visitor WPA
+#        If possession_team == visitor_team, offense gets visitor WPA, defense gets home WPA
+
+supplementary <- supplementary |>
+  mutate(
+    offense_win_probability_added = ifelse(
+      possession_team == home_team_abbr,
+      home_team_win_probability_added,
+      visitor_team_win_probility_added
+    ),
+    defense_win_probability_added = ifelse(
+      possession_team == home_team_abbr,
+      visitor_team_win_probility_added,
+      home_team_win_probability_added
+    )
+  )
+
+# Verify the new columns
+head(supplementary |>
+  select(possession_team, home_team_abbr, visitor_team_abbr,
+         home_team_win_probability_added, visitor_team_win_probility_added,
+         offense_win_probability_added, defense_win_probability_added), 10)
+```
+
+## Formation vs Coverage Heatmaps
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+
+# Remove NA values for the variables we're plotting
+supp_clean <- supplementary |>
+  filter(!is.na(offense_formation) &
+         !is.na(team_coverage_type) &
+         !is.na(expected_points_added) &
+         !is.na(offense_win_probability_added))
+
+# Get all unique combinations of offense_formation and team_coverage_type
+formations <- unique(supp_clean$offense_formation)
+coverages <- unique(supp_clean$team_coverage_type)
+
+# Create a faceted scatter plot for all combinations
+ggplot(supp_clean, aes(x = expected_points_added, y = offense_win_probability_added)) +
+  geom_point(alpha = 0.3, size = 0.8, color = "#2c7fb8") +
+  facet_grid(team_coverage_type ~ offense_formation) +
+  labs(
+    title = "EPA vs Offense WPA by Formation and Coverage Type",
+    x = "Expected Points Added",
+    y = "Offense Win Probability Added"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 7),
+    axis.text.y = element_text(size = 7),
+    strip.text = element_text(size = 8)
+  )
+```
+
+## Formation vs Coverage EPA Boxplots
+
+```{r}
+# Create a combined factor for formation-coverage pairs
+supp_clean <- supp_clean |>
+  mutate(formation_coverage = paste(offense_formation, team_coverage_type, sep = " vs "))
+
+# Filter to only include combinations with at least 100 plays
+supp_filtered <- supp_clean |>
+  group_by(formation_coverage) |>
+  filter(n() >= 100) |>
+  ungroup()
+
+# Calculate median EPA for each combination to order them
+median_epa <- supp_filtered |>
+  group_by(formation_coverage) |>
+  summarise(median_epa = median(expected_points_added, na.rm = TRUE)) |>
+  arrange(median_epa)
+
+# Reorder the factor based on median EPA
+supp_filtered$formation_coverage <- factor(supp_filtered$formation_coverage,
+                                         levels = median_epa$formation_coverage)
+
+# Create boxplots
+ggplot(supp_filtered, aes(x = formation_coverage, y = expected_points_added)) +
+  geom_boxplot(fill = "#2c7fb8", alpha = 0.7, outlier.alpha = 0.3, outlier.size = 0.5) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red", linewidth = 0.5) +
+  labs(
+    title = "Expected Points Added by Formation and Coverage Type",
+    subtitle = "Ordered by median EPA (left = worst for offense, right = best for offense)",
+    x = "Formation vs Coverage Combination",
+    y = "Expected Points Added"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 7),
+    axis.text.y = element_text(size = 8),
+    panel.grid.major.x = element_blank()
+  )
+```
+
+
+## Faceted Boxplots by Offensive Formation
+
+```{r}
+# Create a combined factor for formation-coverage pairs
+supp_clean <- supp_clean |>
+  mutate(formation_coverage = paste(offense_formation, team_coverage_type, sep = " vs "))
+
+# Filter to only include combinations with at least 100 plays
+supp_filtered <- supp_clean |>
+  group_by(formation_coverage) |>
+  filter(n() >= 100) |>
+  ungroup()
+
+# Calculate median EPA for each coverage type and add it as a column
+supp_filtered <- supp_filtered |>
+  group_by(formation_coverage) |>
+  mutate(median_epa = median(expected_points_added, na.rm = TRUE)) |>
+  ungroup()
+
+# Create faceted boxplots with reorder() to order by median within each facet
+ggplot(supp_filtered, aes(x = reorder(team_coverage_type, median_epa), y = expected_points_added)) +
+  geom_boxplot(fill = "#2c7fb8", alpha = 0.7, outlier.alpha = 0.3, outlier.size = 0.5) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red", linewidth = 0.5) +
+  facet_wrap(~ offense_formation, scales = "free_x") +
+  labs(
+    title = "Expected Points Added by Coverage Type, Faceted by Offensive Formation",
+    subtitle = "Only showing formation-coverage combinations with 100+ plays",
+    x = "Defensive Coverage Type",
+    y = "Expected Points Added"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    axis.text.y = element_text(size = 8),
+    strip.text = element_text(size = 10, face = "bold"),
+    panel.grid.major.x = element_blank()
+  )
+
+```
+
+```{r}
+print(head(supp_filtered['formation_coverage'], 10))
+
+```

@@ -187,7 +187,7 @@ ggplot(na_by_col, aes(x = na_count)) +
 na_by_col %>% 
   filter(na_count > 0) %>%
   arrange(desc(na_count))
-If you want a bar chart showing NA counts for each specific column (easier to see which columns have NAs):
+# If you want a bar chart showing NA counts for each specific column (easier to see which columns have NAs):
 # Bar chart of NA counts by column (only showing columns with NAs)
 na_by_col %>%
   filter(na_count > 0) %>%
