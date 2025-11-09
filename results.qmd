@@ -172,17 +172,54 @@ supp_filtered <- supp_clean |>
   filter(n() >= 100) |>
   ungroup()
 
-# Calculate median EPA for each coverage type and add it as a column
-supp_filtered <- supp_filtered |>
-  group_by(formation_coverage) |>
-  mutate(median_epa = median(expected_points_added, na.rm = TRUE)) |>
-  ungroup()
+# Split data by offensive formation
+formation_list <- split(supp_filtered, supp_filtered$offense_formation)
 
-# Create faceted boxplots with reorder() to order by median within each facet
-ggplot(supp_filtered, aes(x = reorder(team_coverage_type, median_epa), y = expected_points_added)) +
+# Process each formation subtable separately
+formation_list_processed <- lapply(formation_list, function(formation_df) {
+  formation_name <- unique(formation_df$offense_formation)
+
+  # Calculate median EPA for each coverage type within this formation
+  formation_df <- formation_df |>
+    group_by(team_coverage_type) |>
+    mutate(median_epa = median(expected_points_added, na.rm = TRUE)) |>
+    ungroup()
+
+  # Create ordered factor for coverage type based on median EPA
+  # Use concatenated string to make unique factor levels per formation
+  coverage_order <- formation_df |>
+    group_by(team_coverage_type) |>
+    summarise(median_epa = first(median_epa)) |>
+    arrange(median_epa) |>
+    mutate(coverage_concat = paste(team_coverage_type, formation_name, sep = "___")) |>
+    pull(coverage_concat)
+
+  # Create concatenated coverage identifier
+  formation_df$coverage_concat <- paste(formation_df$team_coverage_type,
+                                        formation_name,
+                                        sep = "___")
+
+  # Set factor levels with formation-specific ordering
+  formation_df$coverage_ordered <- factor(formation_df$coverage_concat,
+                                          levels = coverage_order)
+
+  return(formation_df)
+})
+
+# Combine all formation subtables back together
+supp_filtered_ordered <- bind_rows(formation_list_processed)
+
+# Create a labeller function to strip the formation suffix from labels
+strip_formation <- function(x) {
+  gsub("___.*$", "", x)
+}
+
+# Create faceted boxplots
+ggplot(supp_filtered_ordered, aes(x = coverage_ordered, y = expected_points_added)) +
   geom_boxplot(fill = "#2c7fb8", alpha = 0.7, outlier.alpha = 0.3, outlier.size = 0.5) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "red", linewidth = 0.5) +
   facet_wrap(~ offense_formation, scales = "free_x") +
+  scale_x_discrete(labels = strip_formation) +
   labs(
     title = "Expected Points Added by Coverage Type, Faceted by Offensive Formation",
     subtitle = "Only showing formation-coverage combinations with 100+ plays",
