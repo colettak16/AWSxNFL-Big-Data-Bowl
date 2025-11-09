@@ -203,38 +203,6 @@ na_by_col %>%
 ```
 
 ```{r}
-
-  # Get NA counts for each column in supplementary dataset
-na_by_col <- data.frame(
-  column = names(supplementary),
-  na_count = colSums(is.na(supplementary))
-) %>%
-  filter(na_count > 0) %>%
-  arrange(desc(na_count))
-
-# Cap penalty_yards for better visualization
-na_by_col_capped <- na_by_col %>%
-  mutate(
-    na_count_display = ifelse(column == "penalty_yards", 17000, na_count),
-    label = ifelse(column == "penalty_yards", "17k+", as.character(na_count))
-  )
-
-# Bar chart with capped scale
-ggplot(na_by_col_capped, aes(x = reorder(column, na_count), y = na_count_display)) +
-  geom_col(fill = "#7fcdbb") +
-  geom_text(aes(label = label), hjust = -0.1, size = 3) +
-  coord_flip() +
-  labs(
-    title = "NA Counts by Column (Supplementary Data)",
-    subtitle = "penalty_yards capped at 17k for better visibility of other columns",
-    x = "Column",
-    y = "Number of NA Values"
-  ) +
-  theme_minimal()
-
-```
-
-```{r}
 # Get NA counts for each column in supplementary dataset
 na_by_col <- data.frame(
   column = names(supplementary),
@@ -266,3 +234,7 @@ ggplot(na_by_col_capped, aes(x = reorder(column, na_count), y = na_count_display
 
 
 ```
+
+
+These graphs show that the vast majority of N/A data comes from the penalty_yards column, which is to be exapected, as most plays in the data set did not result in any penalties, and therefore would not have any penalty yards associated with them.
+
