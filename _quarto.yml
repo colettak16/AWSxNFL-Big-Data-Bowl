@@ -19,7 +19,8 @@ book:
   chapters:
     - index.qmd
     - data.qmd
-    - results.qmd
+    - Formation_Vs_Coverage.qmd
+    - more_results.qmd
     - conclusion.qmd
 
 format:
