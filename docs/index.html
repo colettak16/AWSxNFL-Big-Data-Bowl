@@ -2,13 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.8.25">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Kyle Coletta (kc3936)">
 <meta name="author" content="Connor Feldman (cf3069)">
-<meta name="dcterms.date" content="2025-11-09">
+<meta name="dcterms.date" content="2025-12-03">
 
 <title>AWS x NFL Big Data Bowl</title>
 <style>
@@ -36,14 +36,15 @@ ul.task-list li input[type="checkbox"] {
 <link href="./data.html" rel="next">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-485d01fc63b59abcd3ee1bf1e8e2748d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-27c261d06b905028a18691de25d09dde.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -97,7 +98,9 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
-    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="./index.html" class="sidebar-logo-link">
+      </a>
     <div class="sidebar-title mb-0 py-0">
       <a href="./">AWS x NFL Big Data Bowl</a> 
         <div class="sidebar-tools-main">
@@ -173,7 +176,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 9, 2025</p>
+      <p class="date">December 3, 2025</p>
     </div>
   </div>
   
@@ -189,7 +192,7 @@ ul.task-list li input[type="checkbox"] {
 <h1 data-number="1"><span class="header-section-number">1</span> Introduction</h1>
 <p>For our final project, we have decided to enter the AWS x NFL Annual Big Data Bowl – a competition hosted on Kaggle where participants are challenged to find meaningful insights from week-to-week game data within the 2023 NFL season, creating and delivering a compelling story within the data. The competition has 2 tracks, including a University Track – the one we entered into, tasked with analyzing player movement, creating player or team metrics for either the offensive or defensive units, and/or evaluating other passing play topics.</p>
 <p>As a part of this competition, we will be creating models and various types of visualizations of both model outputs, as well as the raw data itself.</p>
-<p>We chose to work on this topic because we both are passionate fans of the Philadelphia Eagles and Detriot Lions, and in particular, enjoy the advanced analytic insights that AWS provides to viewers during football games. As avid fans, developing and contributing something used in practice by professional teams would be a massive accomplishment, and we are eager to put our combined domain knowledge and technical backgrounds together to deliver something that is both unique and insightful.</p>
+<p>We chose to work on this topic because we both are passionate fans of the Philadelphia Eagles and Detroit Lions, and in particular, enjoy the advanced analytic insights that AWS provides to viewers during football games. As avid fans, developing and contributing something used in practice by professional teams would be a massive accomplishment, and we are eager to put our combined domain knowledge and technical backgrounds together to deliver something that is both unique and insightful.</p>
 
 
 </section>
@@ -246,13 +249,14 @@ ul.task-list li input[type="checkbox"] {
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

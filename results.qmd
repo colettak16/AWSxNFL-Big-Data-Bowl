@@ -3,6 +3,7 @@
 ```{r}
 library(ggplot2)
 library(dplyr)
+library(reticulate)
 
 ```
 
@@ -239,4 +240,143 @@ ggplot(supp_filtered_ordered, aes(x = coverage_ordered, y = expected_points_adde
 ```{r}
 print(head(supp_filtered['formation_coverage'], 10))
 
+```
+
+## Receiver Separation Analysis
+
+```{r}
+# Combine all weekly input data
+all_weeks <- bind_rows(
+  in_week1, in_week2, in_week3, in_week4, in_week5, in_week6,
+  in_week7, in_week8, in_week9, in_week10, in_week11, in_week12,
+  in_week13, in_week14, in_week15, in_week16, in_week17, in_week18
+)
+
+# For each play, get the final frame (ball arrival)
+ball_arrival_frames <- all_weeks |>
+  group_by(game_id, play_id) |>
+  summarise(arrival_frame = max(frame_id), .groups = "drop")
+
+# Filter to ball arrival frame
+all_weeks_ball_arrival <- all_weeks |>
+  inner_join(ball_arrival_frames, by = c("game_id", "play_id")) |>
+  filter(frame_id == arrival_frame)
+
+# Get defenders at ball arrival
+defenders <- all_weeks_ball_arrival |>
+  filter(player_role == "Defensive Coverage") |>
+  select(game_id, play_id, nfl_id, x, y) |>
+  rename(defender_id = nfl_id, defender_x = x, defender_y = y)
+
+# Get targeted receivers and route runners at ball arrival
+receivers_and_runners <- all_weeks_ball_arrival |>
+  filter(player_role %in% c("Targeted Receiver", "Route Runner")) |>
+  select(game_id, play_id, frame_id, nfl_id, x, y)
+
+# Calculate nearest defender for each receiver/runner
+nearest_defenders <- receivers_and_runners |>
+  inner_join(defenders, by = c("game_id", "play_id"), relationship = "many-to-many") |>
+  mutate(distance = sqrt((x - defender_x)^2 + (y - defender_y)^2)) |>
+  group_by(game_id, play_id, frame_id, nfl_id) |>
+  slice_min(distance, n = 1, with_ties = FALSE) |>
+  ungroup() |>
+  select(game_id, play_id, frame_id, nfl_id,
+         nearest_defender_id = defender_id,
+         nearest_defender_distance = distance)
+
+# Add nearest_defender_id and nearest_defender_distance columns to all_weeks
+all_weeks <- all_weeks |>
+  left_join(nearest_defenders, by = c("game_id", "play_id", "frame_id", "nfl_id"))
+```
+
+
+```{python}
+
+# print(r.in_week1.info())
+
+```
+
+```{python}
+# import pandas as pd
+# import numpy as np
+
+#r.in_week1
+
+
+# # Access the R dataframes - combine all weeks
+# all_weeks_list = [
+#     r.in_week1, r.in_week2, r.in_week3, r.in_week4, r.in_week5, r.in_week6,
+#     r.in_week7, r.in_week8, r.in_week9, r.in_week10, r.in_week11, r.in_week12,
+#     r.in_week13, r.in_week14, r.in_week15, r.in_week16, r.in_week17, r.in_week18
+# ]
+
+
+# all_weeks = pd.concat(all_weeks_list, ignore_index=True)
+
+# print(all_weeks.head(10))
+
+# # Get ball arrival frames (max frame_id per play)
+# ball_arrival_frames = all_weeks.groupby(['game_id', 'play_id'])['frame_id'].max().reset_index()
+# ball_arrival_frames.columns = ['game_id', 'play_id', 'arrival_frame']
+
+# # Filter to ball arrival frame
+# all_weeks_ball_arrival = all_weeks.merge(ball_arrival_frames, on=['game_id', 'play_id'])
+# all_weeks_ball_arrival = all_weeks_ball_arrival[all_weeks_ball_arrival['frame_id'] == all_weeks_ball_arrival['arrival_frame']]
+
+# # Get defenders at ball arrival
+# defenders = all_weeks_ball_arrival[all_weeks_ball_arrival['player_role'] == 'Defensive Coverage'][
+#     ['game_id', 'play_id', 'nfl_id', 'x', 'y']
+# ].rename(columns={'nfl_id': 'defender_id', 'x': 'defender_x', 'y': 'defender_y'})
+
+# # Get receivers and route runners at ball arrival
+# receivers_and_runners = all_weeks_ball_arrival[
+#     all_weeks_ball_arrival['player_role'].isin(['Targeted Receiver', 'Route Runner'])
+# ][['game_id', 'play_id', 'frame_id', 'nfl_id', 'x', 'y']]
+
+# # Calculate nearest defender for each receiver - using a more efficient approach
+# nearest_defenders_list = []
+
+# for (game_id, play_id), group in receivers_and_runners.groupby(['game_id', 'play_id']):
+#     # Get defenders for this play
+#     play_defenders = defenders[(defenders['game_id'] == game_id) & (defenders['play_id'] == play_id)]
+
+#     if len(play_defenders) == 0:
+#         continue
+
+#     for _, receiver in group.iterrows():
+#         # Calculate distances to all defenders using vectorized operations
+#         distances = np.sqrt(
+#             (receiver['x'] - play_defenders['defender_x'])**2 +
+#             (receiver['y'] - play_defenders['defender_y'])**2
+#         )
+
+#         # Find nearest defender
+#         min_idx = distances.idxmin()
+
+#         nearest_defenders_list.append({
+#             'game_id': game_id,
+#             'play_id': play_id,
+#             'frame_id': receiver['frame_id'],
+#             'nfl_id': receiver['nfl_id'],
+#             'nearest_defender_id': play_defenders.loc[min_idx, 'defender_id'],
+#             'nearest_defender_distance': distances[min_idx]
+#         })
+
+# nearest_defenders = pd.DataFrame(nearest_defenders_list)
+# print(nearest_defenders.head(10))
+
+# # Add nearest_defender columns to all_weeks
+# # all_weeks = all_weeks.merge(
+# #     nearest_defenders,
+# #     on=['game_id', 'play_id', 'frame_id', 'nfl_id'],
+# #     how='left'
+# # )
+
+# # print(f"Processed {len(all_weeks)} rows")
+# # print(f"Found nearest defenders for {len(nearest_defenders)} receivers/runners")
+```
+
+```{r}
+# Get the processed data back from Python
+#all_weeks <- py$all_weeks
 ```

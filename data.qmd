@@ -18,14 +18,13 @@ This is broken down into 18 csv files (23 columns by ~30k rows each) – one for
 - Output
 This is also broken down into 18 csv files (6 columns by ~30k rows each), with each file again representing one week of the season. The data in this file contains the play ID, the player ID, and their final position on the field at the time the play ends.
 ```{r}
-install.packages("httpgd")
-install.packages("ggplot2")
-install.packages("dplyr")
+#install.packages("httpgd")
+#install.packages("ggplot2")
+#install.packages("dplyr")
 
 library(dplyr)
 library(ggplot2)
-
-# library(httpgd)
+#library(httpgd)
 ```
 
 ```{r}
