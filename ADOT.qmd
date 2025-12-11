@@ -1,8 +1,11 @@
 Depth of Target by State and Month (Outdoor Stadiums Only)
 
 ```{r}
+library(dplyr)
+library(ggplot2)
 library(maps)
 library(lubridate)
+library(tidyr)
 ```
 
 ```{r}

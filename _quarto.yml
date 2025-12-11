@@ -4,6 +4,9 @@ project:
 
 execute:
   echo: true
+  warning: false
+  message: false
+
 
 book:
   title: "AWS x NFL Big Data Bowl"

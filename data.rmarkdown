@@ -161,12 +161,10 @@ na_by_col %>%
     x = "Column",
     y = "Number of NA Values"
   ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
+  theme_minimal()
 ```
 
-Clearly, we see that penalty_yards is the main culprit of any N/A values in the data set, containing over 17000 NAs. Lets recreate this graph, capping the X axis at 300 so that we can more clearly see the distribution of NAs across the other columns:
+Clearly, we see that penalty_yards is the main culprit of any N/A values in the data set, containing over 17000 NAs. Lets recreate this graph, capping the X axis at 300 so that we can more clearly see the distribution of NAs across the other columns.
 
 ```{r}
 # Get NA counts for each column in supplementary dataset
@@ -203,4 +201,5 @@ ggplot(na_by_col_capped, aes(x = reorder(column, -na_count), y = na_count_displa
 
 
 These graphs show that the vast majority of N/A data comes from the penalty_yards column, which is to be exapected, as most plays in the data set did not result in any penalties, and therefore would not have any penalty yards associated with them.
+
 
