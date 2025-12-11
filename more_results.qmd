@@ -185,3 +185,87 @@ ggplot(receiver_separation, aes(x = reorder(player_name, avg_separation), y = av
 # Print the table
 print(receiver_separation)
 ```
+
+## Play Action Effect on Receiver Separation by Route Type
+
+```{r}
+# Join all_weeks with supplementary data to get play_action and route information
+all_weeks_with_play_info <- all_weeks |>
+  inner_join(
+    supplementary |> select(game_id, play_id, play_action, route_of_targeted_receiver),
+    by = c("game_id", "play_id")
+  ) |>
+  filter(
+    !is.na(play_action),
+    !is.na(route_of_targeted_receiver),
+    !is.na(nearest_defender_distance),
+    player_position == "WR"  # Only wide receivers
+  )
+
+# Check the data
+cat("Play action distribution:\n")
+print(table(all_weeks_with_play_info$play_action))
+cat("\nRoute distribution:\n")
+print(table(all_weeks_with_play_info$route_of_targeted_receiver))
+cat("\nTotal observations:", nrow(all_weeks_with_play_info), "\n")
+```
+
+```{r}
+# Filter to routes with sufficient sample size (at least 100 observations)
+route_counts <- all_weeks_with_play_info |>
+  group_by(route_of_targeted_receiver) |>
+  summarise(n = n()) |>
+  filter(n >= 100)
+
+all_weeks_filtered <- all_weeks_with_play_info |>
+  filter(route_of_targeted_receiver %in% route_counts$route_of_targeted_receiver)
+
+# Create overlapping density plots faceted by route type
+ggplot(all_weeks_filtered, aes(x = nearest_defender_distance, fill = play_action, color = play_action)) +
+  geom_density(alpha = 0.4, linewidth = 0.8) +
+  facet_wrap(~ route_of_targeted_receiver, scales = "free_y", ncol = 3) +
+  scale_fill_manual(
+    values = c("TRUE" = "#d95f02", "FALSE" = "#1b9e77"),
+    labels = c("FALSE" = "No Play Action", "TRUE" = "Play Action")
+  ) +
+  scale_color_manual(
+    values = c("TRUE" = "#d95f02", "FALSE" = "#1b9e77"),
+    labels = c("FALSE" = "No Play Action", "TRUE" = "Play Action")
+  ) +
+  labs(
+    title = "Effect of Play Action on WR Separation at Ball Arrival by Route Type",
+    subtitle = "Targeted receivers only | Routes with 100+ observations",
+    x = "Separation from Nearest Defender (yards)",
+    y = "Density",
+    fill = "Play Type",
+    color = "Play Type"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    plot.subtitle = element_text(size = 10),
+    strip.text = element_text(face = "bold", size = 9),
+    legend.position = "bottom",
+    axis.text = element_text(size = 8)
+  )
+```
+
+```{r}
+# Calculate summary statistics by route and play action
+separation_summary <- all_weeks_filtered |>
+  group_by(route_of_targeted_receiver, play_action) |>
+  summarise(
+    n = n(),
+    mean_separation = mean(nearest_defender_distance, na.rm = TRUE),
+    median_separation = median(nearest_defender_distance, na.rm = TRUE),
+    sd_separation = sd(nearest_defender_distance, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  arrange(route_of_targeted_receiver, play_action)
+
+# Add play action labels
+separation_summary <- separation_summary |>
+  mutate(play_action_label = ifelse(play_action == TRUE, "Play Action", "No Play Action"))
+
+print(separation_summary)
+```
