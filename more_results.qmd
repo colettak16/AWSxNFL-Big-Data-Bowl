@@ -3,6 +3,13 @@ title: "more_results"
 editor: visual
 ---
 
+```{r}
+library(ggplot2)
+library(dplyr)
+library(reticulate)
+library(lubridate)
+```
+
 ## Receiver Separation Analysis
 
 ```{r}
@@ -276,6 +283,13 @@ print(separation_summary)
 library(maps)
 library(lubridate)
 
+# Reload supplementary data fresh to ensure we have all data
+supplementary_fresh <- read.csv("data/supplementary_data.csv")
+
+cat("Total rows in fresh supplementary data:", nrow(supplementary_fresh), "\n")
+```
+
+```{r}
 # Define dome teams to exclude
 dome_teams <- c("NO", "DET", "MIN", "DAL", "HOU", "ARI", "ATL", "IND", "LV", "LAC")
 
@@ -294,81 +308,123 @@ team_to_state <- data.frame(
             "Tennessee", "Maryland"),
   stringsAsFactors = FALSE
 )
+```
 
+```{r}
 # Filter supplementary data for outdoor stadiums and valid pass plays
-pass_data <- supplementary |>
+# Create early season (weeks 1-4) vs late season (weeks 15-18) groupings
+pass_data <- supplementary_fresh |>
   filter(
     !home_team_abbr %in% dome_teams,
     pass_result %in% c("C", "I", "IN"),
     !is.na(pass_length),
-    pass_length >= 0  # Exclude negative/invalid values
+    pass_length >= 0,  # Exclude negative/invalid values
+    !is.na(week)
   ) |>
   mutate(
-    game_date = as.Date(game_date),
-    month = month(game_date, label = TRUE, abbr = TRUE)
+    season_period = case_when(
+      week %in% 1:4 ~ "Early",
+      week %in% 15:18 ~ "Late",
+      TRUE ~ "Mid"
+    )
   ) |>
   left_join(team_to_state, by = c("home_team_abbr" = "team_abbr")) |>
   filter(!is.na(state))
 
 # Check the data
-cat("Pass data by month:\n")
-print(table(pass_data$month))
+cat("Pass data by week:\n")
+print(table(pass_data$week))
+cat("\nPass data by season period:\n")
+print(table(pass_data$season_period))
 cat("\nPass data by state (top 10):\n")
 print(head(sort(table(pass_data$state), decreasing = TRUE), 10))
 ```
 
 ```{r}
-# Calculate average depth of target by state and month
-state_month_avg <- pass_data |>
-  group_by(state, month) |>
+# Calculate average depth of target by state for early vs late season
+state_early_late <- pass_data |>
+  filter(season_period %in% c("Early", "Late")) |>
+  group_by(state, season_period) |>
   summarise(
     avg_depth = mean(pass_length, na.rm = TRUE),
     n_plays = n(),
     .groups = "drop"
-  ) |>
-  filter(month %in% c("Sep", "Oct", "Nov", "Dec"))
+  )
 
+# Check what we have before pivoting
+cat("\nNumber of state-period combinations:", nrow(state_early_late), "\n")
+cat("\nData before pivot:\n")
+print(state_early_late)
+cat("\nStates by season period crosstab:\n")
+state_period_table <- table(state_early_late$state, state_early_late$season_period)
+print(state_period_table)
+cat("\nStates that appear in BOTH Early and Late:\n")
+early_states <- state_early_late$state[state_early_late$season_period == "Early"]
+late_states <- state_early_late$state[state_early_late$season_period == "Late"]
+both_states <- intersect(early_states, late_states)
+cat(paste(both_states, collapse = ", "), "\n")
+cat("Number of states in both periods:", length(both_states), "\n")
+
+# Add region column
+state_early_late <- state_early_late |>
+  mutate(region = tolower(trimws(state)))
+
+# Pivot to get Early and Late in separate columns
+state_comparison <- state_early_late |>
+  tidyr::pivot_wider(
+    names_from = season_period,
+    values_from = c(avg_depth, n_plays)
+  ) |>
+  mutate(
+    depth_change = avg_depth_Late - avg_depth_Early  # Positive = deeper passes late season
+  ) |>
+  filter(!is.na(depth_change))
+
+cat("\nStates after pivot and filtering:\n")
+print(nrow(state_comparison))
+
+# Print summary
+cat("\nStates with Early and Late season data:\n")
+print(state_comparison |> select(state, region, avg_depth_Early, avg_depth_Late, depth_change, n_plays_Early, n_plays_Late))
+```
+
+```{r}
 # Get US state map data
 us_states <- map_data("state")
 
-# Merge with our data (need to lowercase state names)
-state_month_avg <- state_month_avg |>
-  mutate(region = tolower(state))
+# Merge with our comparison data
+plot_data <- us_states |>
+  left_join(state_comparison, by = "region")
 
-# Check which states we have data for
-cat("States in our data:\n")
-print(sort(unique(state_month_avg$region)))
-cat("\nStates in map data:\n")
-print(head(sort(unique(us_states$region)), 20))
-```
-
-```{r}
-# September choropleth
-sep_data <- state_month_avg |> filter(month == "Sep")
-sep_plot_data <- us_states |> left_join(sep_data, by = "region")
-
-ggplot(sep_plot_data, aes(x = long, y = lat, group = group, fill = avg_depth)) +
+# Create choropleth showing change in ADOT (Late - Early season)
+# Use a more sensitive color scale that highlights small changes
+ggplot(plot_data, aes(x = long, y = lat, group = group, fill = depth_change)) +
   geom_polygon(color = "white", linewidth = 0.3) +
   coord_fixed(1.3) +
-  scale_fill_gradient2(
-    low = "#2166ac",
-    mid = "#f7f7f7",
-    high = "#b2182b",
-    midpoint = median(state_month_avg$avg_depth, na.rm = TRUE),
+  scale_fill_gradientn(
+    colors = c("#2166ac", "#67a9cf", "#d1e5f0", "white", "#fddbc7", "#ef8a62", "#b2182b"),
+    values = scales::rescale(c(
+      min(state_comparison$depth_change, na.rm = TRUE),
+      min(state_comparison$depth_change, na.rm = TRUE) * 0.5,
+      min(state_comparison$depth_change, na.rm = TRUE) * 0.1,
+      0,
+      max(state_comparison$depth_change, na.rm = TRUE) * 0.1,
+      max(state_comparison$depth_change, na.rm = TRUE) * 0.5,
+      max(state_comparison$depth_change, na.rm = TRUE)
+    )),
     na.value = "grey90",
-    name = "Avg Depth\n(yards)",
-    limits = c(min(state_month_avg$avg_depth, na.rm = TRUE),
-               max(state_month_avg$avg_depth, na.rm = TRUE))
+    name = "ADOT Change\n(Wks 15-18 minus 1-4)\nyards",
+    breaks = scales::pretty_breaks(n = 7)
   ) +
   labs(
-    title = "Average Depth of Target - Sep 2023",
-    subtitle = "Outdoor stadiums only | All pass attempts (C/I/IN)",
+    title = "Change in Average Depth of Target: Early Season to Late Season",
+    subtitle = "Outdoor stadiums only | Weeks 1-4 vs 15-18 | Blue = shorter passes late, Red = deeper passes late",
     caption = "States without data shown in grey"
   ) +
   theme_minimal() +
   theme(
     plot.title = element_text(face = "bold", size = 14),
-    plot.subtitle = element_text(size = 10),
+    plot.subtitle = element_text(size = 9),
     axis.text = element_blank(),
     axis.title = element_blank(),
     axis.ticks = element_blank(),
@@ -378,123 +434,24 @@ ggplot(sep_plot_data, aes(x = long, y = lat, group = group, fill = avg_depth)) +
 ```
 
 ```{r}
-# October choropleth
-oct_data <- state_month_avg |> filter(month == "Oct")
-oct_plot_data <- us_states |> left_join(oct_data, by = "region")
-
-ggplot(oct_plot_data, aes(x = long, y = lat, group = group, fill = avg_depth)) +
-  geom_polygon(color = "white", linewidth = 0.3) +
-  coord_fixed(1.3) +
-  scale_fill_gradient2(
-    low = "#2166ac",
-    mid = "#f7f7f7",
-    high = "#b2182b",
-    midpoint = median(state_month_avg$avg_depth, na.rm = TRUE),
-    na.value = "grey90",
-    name = "Avg Depth\n(yards)",
-    limits = c(min(state_month_avg$avg_depth, na.rm = TRUE),
-               max(state_month_avg$avg_depth, na.rm = TRUE))
-  ) +
-  labs(
-    title = "Average Depth of Target - Oct 2023",
-    subtitle = "Outdoor stadiums only | All pass attempts (C/I/IN)",
-    caption = "States without data shown in grey"
-  ) +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(face = "bold", size = 14),
-    plot.subtitle = element_text(size = 10),
-    axis.text = element_blank(),
-    axis.title = element_blank(),
-    axis.ticks = element_blank(),
-    panel.grid = element_blank(),
-    legend.position = "right"
-  )
-```
-
-```{r}
-# November choropleth
-nov_data <- state_month_avg |> filter(month == "Nov")
-nov_plot_data <- us_states |> left_join(nov_data, by = "region")
-
-ggplot(nov_plot_data, aes(x = long, y = lat, group = group, fill = avg_depth)) +
-  geom_polygon(color = "white", linewidth = 0.3) +
-  coord_fixed(1.3) +
-  scale_fill_gradient2(
-    low = "#2166ac",
-    mid = "#f7f7f7",
-    high = "#b2182b",
-    midpoint = median(state_month_avg$avg_depth, na.rm = TRUE),
-    na.value = "grey90",
-    name = "Avg Depth\n(yards)",
-    limits = c(min(state_month_avg$avg_depth, na.rm = TRUE),
-               max(state_month_avg$avg_depth, na.rm = TRUE))
-  ) +
-  labs(
-    title = "Average Depth of Target - Nov 2023",
-    subtitle = "Outdoor stadiums only | All pass attempts (C/I/IN)",
-    caption = "States without data shown in grey"
-  ) +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(face = "bold", size = 14),
-    plot.subtitle = element_text(size = 10),
-    axis.text = element_blank(),
-    axis.title = element_blank(),
-    axis.ticks = element_blank(),
-    panel.grid = element_blank(),
-    legend.position = "right"
-  )
-```
-
-```{r}
-# December choropleth
-dec_data <- state_month_avg |> filter(month == "Dec")
-dec_plot_data <- us_states |> left_join(dec_data, by = "region")
-
-ggplot(dec_plot_data, aes(x = long, y = lat, group = group, fill = avg_depth)) +
-  geom_polygon(color = "white", linewidth = 0.3) +
-  coord_fixed(1.3) +
-  scale_fill_gradient2(
-    low = "#2166ac",
-    mid = "#f7f7f7",
-    high = "#b2182b",
-    midpoint = median(state_month_avg$avg_depth, na.rm = TRUE),
-    na.value = "grey90",
-    name = "Avg Depth\n(yards)",
-    limits = c(min(state_month_avg$avg_depth, na.rm = TRUE),
-               max(state_month_avg$avg_depth, na.rm = TRUE))
-  ) +
-  labs(
-    title = "Average Depth of Target - Dec 2023",
-    subtitle = "Outdoor stadiums only | All pass attempts (C/I/IN)",
-    caption = "States without data shown in grey"
-  ) +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(face = "bold", size = 14),
-    plot.subtitle = element_text(size = 10),
-    axis.text = element_blank(),
-    axis.title = element_blank(),
-    axis.ticks = element_blank(),
-    panel.grid = element_blank(),
-    legend.position = "right"
-  )
-```
-
-```{r}
-# Summary table showing average depth by month
-month_summary <- pass_data |>
-  filter(month %in% c("Sep", "Oct", "Nov", "Dec")) |>
-  group_by(month) |>
+# Summary table showing average depth by season period
+period_summary <- pass_data |>
+  filter(season_period %in% c("Early", "Late")) |>
+  group_by(season_period) |>
   summarise(
     n_plays = n(),
     avg_depth = mean(pass_length, na.rm = TRUE),
     median_depth = median(pass_length, na.rm = TRUE),
     sd_depth = sd(pass_length, na.rm = TRUE),
     .groups = "drop"
-  ) |>
-  arrange(month)
+  )
 
-print(month_summary)
+print(period_summary)
+
+# Overall difference
+cat("\nOverall change in ADOT from Early to Late season:\n")
+cat(sprintf("%.2f yards",
+            period_summary$avg_depth[period_summary$season_period == "Late"] -
+            period_summary$avg_depth[period_summary$season_period == "Early"]))
+cat("\n(Positive = deeper passes late season, Negative = shorter passes late season)\n")
 ```
