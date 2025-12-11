@@ -269,3 +269,130 @@ separation_summary <- separation_summary |>
 
 print(separation_summary)
 ```
+
+## Depth of Target by State and Month (Outdoor Stadiums Only)
+
+```{r}
+library(maps)
+library(lubridate)
+
+# Define dome teams to exclude
+dome_teams <- c("NO", "DET", "MIN", "DAL", "HOU", "ARI", "ATL", "IND", "LV", "LAC")
+
+# Map team abbreviations to states
+team_to_state <- data.frame(
+  team_abbr = c("ARI", "ATL", "BAL", "BUF", "CAR", "CHI", "CIN", "CLE", "DAL", "DEN",
+                "DET", "GB", "HOU", "IND", "JAX", "KC", "LV", "LAC", "LAR", "MIA",
+                "MIN", "NE", "NO", "NYG", "NYJ", "PHI", "PIT", "SF", "SEA", "TB",
+                "TEN", "WAS"),
+  state = c("Arizona", "Georgia", "Maryland", "New York", "North Carolina", "Illinois",
+            "Ohio", "Ohio", "Texas", "Colorado",
+            "Michigan", "Wisconsin", "Texas", "Indiana", "Florida", "Missouri",
+            "Nevada", "California", "California", "Florida",
+            "Minnesota", "Massachusetts", "Louisiana", "New Jersey", "New Jersey",
+            "Pennsylvania", "Pennsylvania", "California", "Washington", "Florida",
+            "Tennessee", "Maryland"),
+  stringsAsFactors = FALSE
+)
+
+# Filter supplementary data for outdoor stadiums and valid pass plays
+pass_data <- supplementary |>
+  filter(
+    !home_team_abbr %in% dome_teams,
+    pass_result %in% c("C", "I", "IN"),
+    !is.na(pass_length),
+    pass_length >= 0  # Exclude negative/invalid values
+  ) |>
+  mutate(
+    game_date = as.Date(game_date),
+    month = month(game_date, label = TRUE, abbr = TRUE)
+  ) |>
+  left_join(team_to_state, by = c("home_team_abbr" = "team_abbr")) |>
+  filter(!is.na(state))
+
+# Check the data
+cat("Pass data by month:\n")
+print(table(pass_data$month))
+cat("\nPass data by state (top 10):\n")
+print(head(sort(table(pass_data$state), decreasing = TRUE), 10))
+```
+
+```{r}
+# Calculate average depth of target by state and month
+state_month_avg <- pass_data |>
+  group_by(state, month) |>
+  summarise(
+    avg_depth = mean(pass_length, na.rm = TRUE),
+    n_plays = n(),
+    .groups = "drop"
+  ) |>
+  filter(month %in% c("Sep", "Oct", "Nov", "Dec"))
+
+# Get US state map data
+us_states <- map_data("state")
+
+# Merge with our data (need to lowercase state names)
+state_month_avg <- state_month_avg |>
+  mutate(region = tolower(state))
+
+# Create choropleth maps for each month
+months_to_plot <- c("Sep", "Oct", "Nov", "Dec")
+
+for (mon in months_to_plot) {
+  month_data <- state_month_avg |>
+    filter(month == mon)
+
+  # Merge with map data
+  plot_data <- us_states |>
+    left_join(month_data, by = "region")
+
+  # Create the plot
+  p <- ggplot(plot_data, aes(x = long, y = lat, group = group, fill = avg_depth)) +
+    geom_polygon(color = "white", linewidth = 0.3) +
+    coord_fixed(1.3) +
+    scale_fill_gradient2(
+      low = "#2166ac",
+      mid = "#f7f7f7",
+      high = "#b2182b",
+      midpoint = median(state_month_avg$avg_depth, na.rm = TRUE),
+      na.value = "grey90",
+      name = "Avg Depth\n(yards)",
+      limits = c(min(state_month_avg$avg_depth, na.rm = TRUE),
+                 max(state_month_avg$avg_depth, na.rm = TRUE))
+    ) +
+    labs(
+      title = paste("Average Depth of Target -", mon, "2023"),
+      subtitle = "Outdoor stadiums only | All pass attempts (C/I/IN)",
+      caption = paste("States without data shown in grey")
+    ) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(face = "bold", size = 14),
+      plot.subtitle = element_text(size = 10),
+      axis.text = element_blank(),
+      axis.title = element_blank(),
+      axis.ticks = element_blank(),
+      panel.grid = element_blank(),
+      legend.position = "right"
+    )
+
+  print(p)
+}
+```
+
+```{r}
+# Summary table showing average depth by month
+month_summary <- pass_data |>
+  filter(month %in% c("Sep", "Oct", "Nov", "Dec")) |>
+  group_by(month) |>
+  summarise(
+    n_plays = n(),
+    avg_depth = mean(pass_length, na.rm = TRUE),
+    median_depth = median(pass_length, na.rm = TRUE),
+    sd_depth = sd(pass_length, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  arrange(month)
+
+print(month_summary)
+```
