@@ -132,7 +132,7 @@ ggplot(plot_data, aes(x = long, y = lat, group = group, fill = depth_change)) +
 ```
 
 From the map, we see that our hypothesis holds true in some ways, but is disproven in others. States like Pennsylvania, Wisconsin, Ohio, Missouri, and Massachusettes all get extremely cold by the later weeks of the football season, and accordingly, we see that the ADOT for passing plays in these states lowers, compared to the beginning of the season -- particularly in Missouri, Ohio, and Pennsylvania. Additionally, we see warm states like California and Florida do NOT see a decrease in ADOT (and in fact, see a slight increase in ADOT). 
-However, contrary to our expectations, passing plays in Seattle, Colorado, New York , and especially Illinois do not see a decrease in ADOT. In fact, Colorado, New York, and Illinois see the 3 single largest increases in ADOT across every state in our dataset.
+However, contrary to our expectations, passing plays in Seattle, Colorado, New York, and especially Illinois do not see a decrease in ADOT. In fact, Colorado, New York, and Illinois see the 3 single largest increases in ADOT across every state in our dataset.
 Similarly, Tennesse, which is generally a "warm" state in comparison to most others, sees one of the strongest decreases in ADOT across the states in our dataset.
 
 So, overall, it does not appear that we can conclude that colder weather is definitively more likely to cause teams to lower their ADOT.

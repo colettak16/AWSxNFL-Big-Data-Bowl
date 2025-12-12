@@ -1,21 +1,19 @@
 
 # Data
-2.1 Technical Description:
+
+## Technical Description:
 
 All of the data for this project is directly provided by AWS/the NFL itself, via the Kaggle competition. However, the data is unseen by the general public and does not have any published work on it already. The data will be static for the duration of the project, with no updates.
 
-
-## Description
-
 The data can be broken down into 3 main categories:
 
-- Supplementary
+- Supplementary:
 This is a single csv (41 columns by 18009 rows) that provides high-level contextual data about each play from the 2023 NFL season. Every row is identified by a unique play_id, coming from each unique game within a given week 1-18. This table provides info such as pre-snap offensive formation, play outcome, pre-snap score, time of game the play happened at, as well as other relevant info.
 
-- Input
+- Input:
 This is broken down into 18 csv files (23 columns by ~30k rows each) – one for each week of the season. Within each file, we have groups of rows for every player that participated in a game that week. For every player, there are multiple rows for every play they participated in, corresponding to the number of frames within that play.
 
-- Output
+- Output:
 This is also broken down into 18 csv files (6 columns by ~30k rows each), with each file again representing one week of the season. The data in this file contains the play ID, the player ID, and their final position on the field at the time the play ends.
 
 
@@ -194,7 +192,7 @@ ggplot(na_by_col_capped, aes(x = reorder(column, -na_count), y = na_count_displa
 ```
 
 
-These graphs show that the vast majority of N/A data comes from the penalty_yards column, which is to be exapected, as most plays in the data set did not result in any penalties, and therefore would not have any penalty yards associated with them.
+These graphs show that the vast majority of N/A data comes from the penalty_yards column, which is to be expected, as most plays in the data set did not result in any penalties, and therefore would not have any penalty yards associated with them.
 
 As a table:
 ```{r}

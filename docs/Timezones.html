@@ -201,8 +201,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#timezone-effect-on-team-performance" id="toc-timezone-effect-on-team-performance" class="nav-link active" data-scroll-target="#timezone-effect-on-team-performance"><span class="header-section-number">7.1</span> Timezone Effect on Team Performance</a></li>
+  <li><a href="#linear-regression-outputs" id="toc-linear-regression-outputs" class="nav-link" data-scroll-target="#linear-regression-outputs"><span class="header-section-number">7.2</span> Linear Regression Outputs</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/colettak16/AWSxNFL-Big-Data-Bowl/edit/main/Timezones.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/colettak16/AWSxNFL-Big-Data-Bowl/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -226,6 +233,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<section id="timezone-effect-on-team-performance" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="timezone-effect-on-team-performance"><span class="header-section-number">7.1</span> Timezone Effect on Team Performance</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -240,45 +249,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">Home_Score =</span> X<span class="fl">.4</span>,</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">Away_Score =</span> X<span class="fl">.3</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(scores)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "X"          "Home_Team"  "Away_Team"  "Away_Score" "Home_Score"
-[6] "X.5"        "X.6"       </code></pre>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>team_tz <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">team =</span> <span class="fu">c</span>(<span class="st">"SEA"</span>, <span class="st">"SF"</span>, <span class="st">"LAR"</span>, <span class="st">"LAC"</span>, <span class="st">"LAV"</span>, <span class="st">"DEN"</span>, <span class="st">"ARI"</span>, <span class="st">"MIN"</span>,<span class="st">"KC"</span>, <span class="st">"DAL"</span>, <span class="st">"HOU"</span>, <span class="st">"NO"</span>, <span class="st">"TEN"</span>, <span class="st">"CHI"</span>, <span class="st">"GB"</span>, <span class="st">"IND"</span>, <span class="st">"DL"</span>, <span class="st">"CLE"</span>, <span class="st">"ATL"</span>, <span class="st">"CAR"</span>,<span class="st">"JAX"</span>, <span class="st">"TB"</span>, <span class="st">"MIA"</span>, <span class="st">"PIT"</span>, <span class="st">"BUF"</span>, <span class="st">"BAL"</span>, <span class="st">"PHI"</span>, <span class="st">"NYJ"</span>, <span class="st">"NYG"</span>, <span class="st">"NE"</span>, <span class="st">"CIN"</span>, <span class="st">"WAS"</span> </span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">timezone =</span> <span class="fu">c</span>(<span class="st">"PST"</span>, <span class="st">"PST"</span>, <span class="st">"PST"</span>, <span class="st">"PST"</span>,<span class="st">"PST"</span>, <span class="st">"MT"</span>, <span class="st">"MT"</span>, <span class="st">"CT"</span>, <span class="st">"CT"</span>, <span class="st">"CT"</span>, <span class="st">"CT"</span>, <span class="st">"CT"</span>, <span class="st">"CT"</span>, <span class="st">"CT"</span>, <span class="st">"CT"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span> </span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>               )</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>tz_map <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">PST =</span> <span class="sc">-</span><span class="dv">3</span>, <span class="at">MT =</span> <span class="sc">-</span><span class="dv">2</span>, <span class="at">CT =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">ET =</span> <span class="dv">0</span>)</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>games <span class="ot">&lt;-</span> scores <span class="sc">%&gt;%</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(team_tz, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">'Home_Team'</span> <span class="ot">=</span> <span class="st">'team'</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">home_tz =</span> timezone) <span class="sc">%&gt;%</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(team_tz, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">'Away_Team'</span> <span class="ot">=</span> <span class="st">'team'</span>))<span class="sc">%&gt;%</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">away_tz =</span> timezone)</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>games <span class="ot">&lt;-</span> games <span class="sc">%&gt;%</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">Home_Score =</span> <span class="fu">as.numeric</span>(Home_Score),</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">Away_Score =</span> <span class="fu">as.numeric</span>(Away_Score),</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">home_offset =</span> tz_map[home_tz],</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">away_offset =</span> tz_map[away_tz],</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">tz_diff =</span> <span class="fu">abs</span>(home_offset <span class="sc">-</span> away_offset),</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">point_diff =</span> Away_Score <span class="sc">-</span> Home_Score,</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(games, <span class="fu">aes</span>(<span class="at">x =</span> tz_diff, <span class="at">y =</span> point_diff)) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span> <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">TRUE</span>, <span class="at">color =</span> <span class="st">'red'</span>) <span class="sc">+</span> <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">pretty_breaks</span>()) <span class="sc">+</span> <span class="fu">labs</span>(</span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">'Away Team Time Zone Difference'</span>,</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">'Away Team Game Point Differential'</span></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>team_tz <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">team =</span> <span class="fu">c</span>(<span class="st">"SEA"</span>, <span class="st">"SF"</span>, <span class="st">"LAR"</span>, <span class="st">"LAC"</span>, <span class="st">"LAV"</span>, <span class="st">"DEN"</span>, <span class="st">"ARI"</span>, <span class="st">"MIN"</span>,<span class="st">"KC"</span>, <span class="st">"DAL"</span>, <span class="st">"HOU"</span>, <span class="st">"NO"</span>, <span class="st">"TEN"</span>, <span class="st">"CHI"</span>, <span class="st">"GB"</span>, <span class="st">"IND"</span>, <span class="st">"DL"</span>, <span class="st">"CLE"</span>, <span class="st">"ATL"</span>, <span class="st">"CAR"</span>,<span class="st">"JAX"</span>, <span class="st">"TB"</span>, <span class="st">"MIA"</span>, <span class="st">"PIT"</span>, <span class="st">"BUF"</span>, <span class="st">"BAL"</span>, <span class="st">"PHI"</span>, <span class="st">"NYJ"</span>, <span class="st">"NYG"</span>, <span class="st">"NE"</span>, <span class="st">"CIN"</span>, <span class="st">"WAS"</span> </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">timezone =</span> <span class="fu">c</span>(<span class="st">"PST"</span>, <span class="st">"PST"</span>, <span class="st">"PST"</span>, <span class="st">"PST"</span>,<span class="st">"PST"</span>, <span class="st">"MT"</span>, <span class="st">"MT"</span>, <span class="st">"CT"</span>, <span class="st">"CT"</span>, <span class="st">"CT"</span>, <span class="st">"CT"</span>, <span class="st">"CT"</span>, <span class="st">"CT"</span>, <span class="st">"CT"</span>, <span class="st">"CT"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span>, <span class="st">"ET"</span> </span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>               )</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>tz_map <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">PST =</span> <span class="sc">-</span><span class="dv">3</span>, <span class="at">MT =</span> <span class="sc">-</span><span class="dv">2</span>, <span class="at">CT =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">ET =</span> <span class="dv">0</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>games <span class="ot">&lt;-</span> scores <span class="sc">%&gt;%</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(team_tz, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">'Home_Team'</span> <span class="ot">=</span> <span class="st">'team'</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">home_tz =</span> timezone) <span class="sc">%&gt;%</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(team_tz, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">'Away_Team'</span> <span class="ot">=</span> <span class="st">'team'</span>))<span class="sc">%&gt;%</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">away_tz =</span> timezone)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>games <span class="ot">&lt;-</span> games <span class="sc">%&gt;%</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">Home_Score =</span> <span class="fu">as.numeric</span>(Home_Score),</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">Away_Score =</span> <span class="fu">as.numeric</span>(Away_Score),</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">home_offset =</span> tz_map[home_tz],</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">away_offset =</span> tz_map[away_tz],</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">tz_diff =</span> <span class="fu">abs</span>(home_offset <span class="sc">-</span> away_offset),</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">point_diff =</span> Away_Score <span class="sc">-</span> Home_Score,</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(games, <span class="fu">aes</span>(<span class="at">x =</span> tz_diff, <span class="at">y =</span> point_diff)) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span> <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">TRUE</span>, <span class="at">color =</span> <span class="st">'red'</span>) <span class="sc">+</span> <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">pretty_breaks</span>()) <span class="sc">+</span> <span class="fu">labs</span>(</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">'Away Team Time Zone Difference'</span>,</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">'Away Team Game Point Differential'</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -288,13 +289,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>Another aspect of the schedule we were interested in was how travel affected the performance of teams. In order to look at this, we plotted the point differential of the away team and the home team to the time zone difference the away team faced. Though the the linear regression line has a slope of .79 for every time zone crossed, signifying for every timezone we cross we should expect our team to score .79 more points per game. However, the 95% confidence interval ranges from (-.90 , 2.49) meaning that we cannot be confident our slope is non-zero or even positive. Overall this shows that home teams traveling farther for their matches do not perform noticebly worse. Fans shouldn’t be more worried that the Eagles have a game in San Francisco compared to Tampa. However, we did find that there was a negative intercept of -3.58 with a 95% confidence interval ranging from (-6.15, -1.00), meaning we can be confident that our intercept is indeed negative. This negative intercept for a point differential at an away game means that on average away teams in 2023 performed worse than home teams.</p>
-<p>This is what we would expect with the results, as it is generally known that home teams have an advantage. Beyond just a win record, we can see that blowouts are more likely to occur from home teams as well. From the graph, we can see that there were 6 games where the home team lost by 25 or more points. We can compare that with away teams which were blown out by 25 points or more 15 times over the regular season, one of which was by 50 points (Miami Dolphins hosting the Denver Broncos).</p>
+<p>Another aspect of the schedule we were interested in was how travel affected the performance of teams. In order to look at this, we plotted the point differential of the away team and the home team against the time zone difference the away team faced. The linear regression line has a slope of .79 for every time zone crossed, indicating that with every timezone we cross, we might expect the away team to score .79 more points per game, to our surprise. However, the 95% confidence interval ranges from (-.90 , 2.49) meaning that we cannot be confident our slope is non-zero or even positive. Overall this shows that teams traveling farther for their matches do not perform noticeably worse. Eagles fans shouldn’t be more worried about a game in San Francisco compared to Tampa Bay. However, we did find that there was a negative intercept of -3.58 with a 95% confidence interval ranging from (-6.15, -1.00), meaning we can be confident that our intercept is indeed negative. This negative intercept for a point differential at an away game means that on average away teams in 2023 performed worse than home teams.</p>
+<p>This is what we would expect with the results, as it is generally known that home teams have an advantage. Beyond just a win record, we can see that blowouts are more likely to occur from home teams as well. From the graph, there were 6 games where the home team lost by 25 or more points. We can compare that with away teams which were blown out by 25 points or more 15 times over the regular season, one of which was by 50 points (Miami Dolphins hosting the Denver Broncos).</p>
+</section>
+<section id="linear-regression-outputs" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="linear-regression-outputs"><span class="header-section-number">7.2</span> Linear Regression Outputs</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">lm</span>(point_diff <span class="sc">~</span> tz_diff, <span class="at">data =</span> games)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(m)[<span class="st">"tz_diff"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">lm</span>(point_diff <span class="sc">~</span> tz_diff, <span class="at">data =</span> games)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(m)[<span class="st">"tz_diff"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>  tz_diff 
@@ -302,7 +306,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(m, <span class="st">"tz_diff"</span>, <span class="at">level =</span> <span class="fl">0.95</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(m, <span class="st">"tz_diff"</span>, <span class="at">level =</span> <span class="fl">0.95</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>             2.5 %   97.5 %
@@ -310,7 +314,7 @@ tz_diff -0.9045339 2.493951</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(m)[<span class="st">"(Intercept)"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(m)[<span class="st">"(Intercept)"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>(Intercept) 
@@ -318,7 +322,7 @@ tz_diff -0.9045339 2.493951</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(m, <span class="st">"(Intercept)"</span>, <span class="at">level =</span> <span class="fl">0.95</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(m, <span class="st">"(Intercept)"</span>, <span class="at">level =</span> <span class="fl">0.95</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>                2.5 %    97.5 %
@@ -327,6 +331,7 @@ tz_diff -0.9045339 2.493951</code></pre>
 </div>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -749,7 +754,7 @@ tz_diff -0.9045339 2.493951</code></pre>
     </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions"><ul><li><a href="https://github.com/colettak16/AWSxNFL-Big-Data-Bowl/edit/main/Timezones.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/colettak16/AWSxNFL-Big-Data-Bowl/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/colettak16/AWSxNFL-Big-Data-Bowl/edit/main/Timezones.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/colettak16/AWSxNFL-Big-Data-Bowl/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
     <div class="nav-footer-right">
 <p>This book was built with <a href="https://quarto.org/">Quarto</a>.</p>
 </div>

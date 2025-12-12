@@ -201,8 +201,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#bye-week-effect-on-player-movement" id="toc-bye-week-effect-on-player-movement" class="nav-link active" data-scroll-target="#bye-week-effect-on-player-movement"><span class="header-section-number">6.1</span> BYE Week Effect on Player Movement</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/colettak16/AWSxNFL-Big-Data-Bowl/edit/main/Before_After_BYE_Movement.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/colettak16/AWSxNFL-Big-Data-Bowl/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -226,6 +232,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<section id="bye-week-effect-on-player-movement" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="bye-week-effect-on-player-movement"><span class="header-section-number">6.1</span> BYE Week Effect on Player Movement</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -251,6 +259,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>sup_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/supplementary_data.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
+<p>Another aspect we were interested in looking at was how the schedules of teams might affect their performance during the regular season. Each team gets one BYE week at some point during the season where they do not play an opponent, and instead get an extra week to rest. Within these schedules, one question we had was how the bye week might affect players.</p>
+<p>One way we decided to look at how this rest was affecting the team was how much players were running on average across a game. While we were not able to get the precise amount of how far each player was running since our data was given to us in frames, we could look at the shift between frames and use that as an approximation for the distance within a play. We could then plot these distances to get a distribution across the game and see if there was a difference between before and after the bye.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -312,9 +322,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>Another aspect we were interested in looking at was how the schedules of teams might affect their performance during the regular season. The NFL is divided into two halves called conferences, with each of those conferences divided into quarters, called divisions. Within a team’s 18 week schedule, they will play their fellow conference rivals each twice, once away and once home. 4 games area against an entire division within the the team’s conference with two home and two away and an additional 4 games are against an entire division within the opposing conference with two home and two away. Two additional games are against teams in the same conference, with one home and one away, and a final team is against a non-conference and already non-played team. A bye-week is also given to every team during the season. Within these schedules, one question we had was how the bye week might affect players.</p>
-<p>One thing we decided to look at was how much players were running on average across a game. While we were not able to get the precise amount of how far each player was running since our data was given to us in frames, we could look at the shift between frames and use that as an approximation for the distance. We could then plot these distances to get a distribution across the game and see if there was a large difference between before and after the bye.</p>
-<p>When initially looking at the first team, the Cleveland Browns, we were surprised to see a big difference in distribution before and after the bye. Before the bye we see the distribution of distances is narrow, barely going beyond 1 yard, whereas after the bye we see the distribution of distances is much wider.</p>
+<p>Looking at the Cleveland Browns, we can see that the distributions are fairly similar before and after the bye with a slight increase in before the bye for the upper end of the tail. However, we can graph all of the teams together and overlay to see if a larger trend emerges.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -358,7 +366,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>LAC_Combined <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(total_distanceLAC4, total_distanceLAC6)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<p>Looking continuing the investigation we see that again for the Los Angelos Chargers, the distribution of movement before the bye week is much wider than the post bye week.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -1724,7 +1731,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>When we look at the total distribution of teams across the league, we see that the strong individual cases from before go away, and the two distributions look fairly similar with very little shift between them. This shows that though for individual teams, we might see a large difference between the energy before and after a bye week, across the entire league there is little difference.</p>
+<p>When we look at the total distribution of teams across the league, we see that any differences we noticed in individual cases from before are no longer apparent, and the two distributions look nearly identical. This shows that though for individual teams, we might see some minor differences between the energy levels before and after a bye week, across the entire league there is essentially no difference.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -1820,7 +1827,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>Faceting this distribution by where the bye week occurs, we see that the global observation holds mostly true for each week. Between all weeks, week 6 seems to have the largest difference between pre and post, with the pre-bye week having a larger percentage of the distribution on the right.</p>
+<p>Faceting this distribution by when the bye week occurs, we see that the global observation holds mostly true for each week. Between all weeks, week 6 seems to have the largest difference between pre and post, with the pre-bye week having a larger percentage of the distribution on the right.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -2181,9 +2188,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>Further looking into the schedule, we were curious if this still held true for all weeks or if we saw a difference in benefit of the bye as the season went along. While we first tried to map the distances in faceted density plots, we were not able to see much of a difference for any of them. So in addition we decided to look at a dot plot of the average distance of a player per play throughout a game. We first averaged the distance of each player per play throughout the game and then averaged all the teams with the same bye-week and plotted the pre and post movement on a Cleveland Dot-plot. From this graph, it is not clear that there is much differentiation between when the bye week occurs and how much it appeared to increase energy. Teams with a bye week 5,6, 7, and 11 have the largest separation in and out of the bye week, with week 6 having the largest separation. This might be because this early into the season teams are largely still trying to build themselves up and this break might mess up their rhythm. But as the season continues we see that the separation between the two games tightens for 10, 13, and 14. It is interesting to note that only two weeks, week 9 and 10, had a higher average distance returning from the bye week.</p>
+<p>In continuing the analysis on if <em>when</em> the BYE week occurs matters, we decided to look at a dot plot of the average distance of a player per play throughout a game. We first averaged the distance of each player per play throughout the game and then averaged all the teams with the same bye-week and plotted the pre and post movement on a Cleveland Dot-plot. From this graph, it is not clear that there is much differentiation between when the bye week occurs and how much it appeared to increase energy. Teams with a bye week 5,6, 7, and 11 have the largest separation in and out of the bye week, with week 6 having the largest separation. This might be because this early into the season teams are largely still trying to build themselves up and this break might mess up their rhythm. But as the season continues we see that the separation between the two games tightens for 10, 13, and 14. It is interesting to note that only two weeks, week 9 and 10, had a higher average distance returning from the bye week.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -2606,7 +2614,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions"><ul><li><a href="https://github.com/colettak16/AWSxNFL-Big-Data-Bowl/edit/main/Before_After_BYE_Movement.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/colettak16/AWSxNFL-Big-Data-Bowl/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/colettak16/AWSxNFL-Big-Data-Bowl/edit/main/Before_After_BYE_Movement.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/colettak16/AWSxNFL-Big-Data-Bowl/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
     <div class="nav-footer-right">
 <p>This book was built with <a href="https://quarto.org/">Quarto</a>.</p>
 </div>

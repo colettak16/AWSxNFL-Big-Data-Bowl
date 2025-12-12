@@ -2,12 +2,12 @@
 
 In conclusion, we found trends we previously had no insight to, and additionally found that several of our hypotheses were confirmed by the analysis and visualization of the data, while other pre-conceived notions we held were challenged in ways we did not expect. 
 
-In particular, we were able to find great insight as to what types of offensive formations work best against specific defensive coverages. We also identified receivers that were particularly gifted at generating separation from defenders, and similarly found that regrdless of the receiver and route ran, Play Action passes were very useful in generating more separation on routes ran.
+In particular, we were able to find great insight as to what types of offensive formations work best against specific defensive coverages. We also identified receivers that were particularly gifted at generating separation from defenders, and additionally found that regardless of the receiver and route ran, Play Action passes were very useful in generating more separation on routes ran.
 
-We also found that, despite our expectations, games that took place in cold-weather states did not see a noticeably significant drop in Average Depth of Target during the colder weeks of the season, in comparison to warm-weather states, which was surprising.
+Furthermore, despite our expectations, games that took place in cold-weather states did not see a noticeably significant drop in Average Depth of Target during the colder weeks of the season, in comparison to warm-weather states.
 
 We further analyzed the idea of player movement during games, trying to get a better understanding of the effect that BYE weeks have on players' freshness and stamina during games and found that despite having extra time to recover, teams do not necessarily play with more intensity in the week following a bye.
 
 Finally we looked at how travel affected a team's performance, and found that despite there being a general disadvantage for away teams, that disadvantage does not correlate with any increase in timezone difference, suggesting that timezone differences play less of a factor than the existing known disadvantage of being a road team in general.
 
-Overall we hope that by exploring the data captured by the NFL throughout the 2023 season, we have been able to uncover insights to team performance that might be helpful to coaches, players, or general managers.  
+Overall we hope that by exploring the NFL's 2023 season data, we have been able to uncover insights to team performance that might be helpful to coaches, players, or sports fans in general.  

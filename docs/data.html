@@ -206,7 +206,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#description" id="toc-description" class="nav-link active" data-scroll-target="#description"><span class="header-section-number">2.1</span> Description</a></li>
+  <li><a href="#technical-description" id="toc-technical-description" class="nav-link active" data-scroll-target="#technical-description"><span class="header-section-number">2.1</span> Technical Description:</a></li>
   <li><a href="#missing-value-analysis" id="toc-missing-value-analysis" class="nav-link" data-scroll-target="#missing-value-analysis"><span class="header-section-number">2.2</span> Missing value analysis</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/colettak16/AWSxNFL-Big-Data-Bowl/edit/main/data.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/colettak16/AWSxNFL-Big-Data-Bowl/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
@@ -233,15 +233,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>2.1 Technical Description:</p>
+<section id="technical-description" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="technical-description"><span class="header-section-number">2.1</span> Technical Description:</h2>
 <p>All of the data for this project is directly provided by AWS/the NFL itself, via the Kaggle competition. However, the data is unseen by the general public and does not have any published work on it already. The data will be static for the duration of the project, with no updates.</p>
-<section id="description" class="level2" data-number="2.1">
-<h2 data-number="2.1" class="anchored" data-anchor-id="description"><span class="header-section-number">2.1</span> Description</h2>
 <p>The data can be broken down into 3 main categories:</p>
 <ul>
-<li><p>Supplementary This is a single csv (41 columns by 18009 rows) that provides high-level contextual data about each play from the 2023 NFL season. Every row is identified by a unique play_id, coming from each unique game within a given week 1-18. This table provides info such as pre-snap offensive formation, play outcome, pre-snap score, time of game the play happened at, as well as other relevant info.</p></li>
-<li><p>Input This is broken down into 18 csv files (23 columns by ~30k rows each) – one for each week of the season. Within each file, we have groups of rows for every player that participated in a game that week. For every player, there are multiple rows for every play they participated in, corresponding to the number of frames within that play.</p></li>
-<li><p>Output This is also broken down into 18 csv files (6 columns by ~30k rows each), with each file again representing one week of the season. The data in this file contains the play ID, the player ID, and their final position on the field at the time the play ends.</p></li>
+<li><p>Supplementary: This is a single csv (41 columns by 18009 rows) that provides high-level contextual data about each play from the 2023 NFL season. Every row is identified by a unique play_id, coming from each unique game within a given week 1-18. This table provides info such as pre-snap offensive formation, play outcome, pre-snap score, time of game the play happened at, as well as other relevant info.</p></li>
+<li><p>Input: This is broken down into 18 csv files (23 columns by ~30k rows each) – one for each week of the season. Within each file, we have groups of rows for every player that participated in a game that week. For every player, there are multiple rows for every play they participated in, corresponding to the number of frames within that play.</p></li>
+<li><p>Output: This is also broken down into 18 csv files (6 columns by ~30k rows each), with each file again representing one week of the season. The data in this file contains the play ID, the player ID, and their final position on the field at the time the play ends.</p></li>
 </ul>
 </section>
 <section id="missing-value-analysis" class="level2" data-number="2.2">
@@ -432,7 +431,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>These graphs show that the vast majority of N/A data comes from the penalty_yards column, which is to be exapected, as most plays in the data set did not result in any penalties, and therefore would not have any penalty yards associated with them.</p>
+<p>These graphs show that the vast majority of N/A data comes from the penalty_yards column, which is to be expected, as most plays in the data set did not result in any penalties, and therefore would not have any penalty yards associated with them.</p>
 <p>As a table:</p>
 <div class="cell">
 <details class="code-fold">

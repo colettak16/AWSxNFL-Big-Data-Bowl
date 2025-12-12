@@ -206,7 +206,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#offensive-formation-vs-defensive-coverage-effectivity" id="toc-offensive-formation-vs-defensive-coverage-effectivity" class="nav-link active" data-scroll-target="#offensive-formation-vs-defensive-coverage-effectivity"><span class="header-section-number">3.1</span> Offensive Formation vs Defensive Coverage Effectivity</a>
+  <li><a href="#offensive-formation-vs-defensive-coverage-effectiveness" id="toc-offensive-formation-vs-defensive-coverage-effectiveness" class="nav-link active" data-scroll-target="#offensive-formation-vs-defensive-coverage-effectiveness"><span class="header-section-number">3.1</span> Offensive Formation vs Defensive Coverage Effectiveness</a>
   <ul class="collapse">
   <li><a href="#scatterplot-of-each-formation-vs-coverage-combination-and-their-respective-epa-vs-win-probability-added" id="toc-scatterplot-of-each-formation-vs-coverage-combination-and-their-respective-epa-vs-win-probability-added" class="nav-link" data-scroll-target="#scatterplot-of-each-formation-vs-coverage-combination-and-their-respective-epa-vs-win-probability-added"><span class="header-section-number">3.1.1</span> Scatterplot of each formation vs coverage combination and their respective EPA vs Win Probability Added</a></li>
   <li><a href="#formation-vs-coverage-epa-boxplots" id="toc-formation-vs-coverage-epa-boxplots" class="nav-link" data-scroll-target="#formation-vs-coverage-epa-boxplots"><span class="header-section-number">3.1.2</span> Formation vs Coverage EPA Boxplots</a></li>
@@ -237,8 +237,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="offensive-formation-vs-defensive-coverage-effectivity" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="offensive-formation-vs-defensive-coverage-effectivity"><span class="header-section-number">3.1</span> Offensive Formation vs Defensive Coverage Effectivity</h2>
+<section id="offensive-formation-vs-defensive-coverage-effectiveness" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="offensive-formation-vs-defensive-coverage-effectiveness"><span class="header-section-number">3.1</span> Offensive Formation vs Defensive Coverage Effectiveness</h2>
 <p>One thing we’d like to use this data to understand is which types of situations are advantageous for offenses when it comes to playcalling. Can we find out which offensive formations are most likely to be successful, especially if we know the opposing team has a tendency to call a specific defensive coverage?</p>
 <div class="cell">
 <details class="code-fold">
@@ -350,7 +350,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>The above shows a grid of scatterplots for every possible offensive formation against every possible defensive coverage, and shows the Expected Points Added (EPA) as well as Offensive Win Probability Added (WPA). This gives us an idea of which offensive/defensive combinations occur most likely. We also see that every scatterplot has a relatively strong positive correlation, which aligns with our intuition that if a play has a positive amount of expected points added, it also gives the offensive team a higher win probability. However, it’s a bit difficult to tell any more specific information from this plot, so lets dive a bit deeper:</p>
+<p>The above shows a grid of scatterplots for every possible offensive formation against every possible defensive coverage, and shows the Expected Points Added (EPA) as well as Offensive Win Probability Added (WPA). This gives us an idea of which offensive/defensive combinations occur most frequently. We also see that every scatterplot has a relatively strong positive correlation, which aligns with our intuition that if a play has a positive amount of expected points added, it also gives the offensive team a higher win probability. However, it’s a bit difficult to tell any more specific information from this plot, so lets dive a bit deeper:</p>
 </section>
 <section id="formation-vs-coverage-epa-boxplots" class="level3" data-number="3.1.2">
 <h3 data-number="3.1.2" class="anchored" data-anchor-id="formation-vs-coverage-epa-boxplots"><span class="header-section-number">3.1.2</span> Formation vs Coverage EPA Boxplots</h3>
@@ -402,8 +402,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>In the above, we have box plots of Offensive Formation/Defensive Coverage combos, sorted by descending mean EPA per play – we no longer need to looks at WPA, as we have concluded that EPA and WPA are strongly correlated and redundant. We have filtered to only show combinations that have occurred 100 times of more throughout the season.</p>
-<p>This chart makes it a bit easier for us to understand some key takeaways. Firstly, we see that the single most successful Offensive Formation/Defensive Coverage combination (where success is measure in Offensive EPA) is the Pistol Formation vs Cover 3 Zone. We also see that Shotgun vs Cover 2 Man is the worst combination for the offense to find itself in, which, on average, contributes a negative EPA.</p>
+<p>In the above, we have box plots of Offensive Formation/Defensive Coverage combos, sorted by descending mean EPA per play – we no longer need to look at WPA, as we have concluded that EPA and WPA are strongly correlated and redundant. We have filtered to only show combinations that have occurred 100 times of more throughout the season.</p>
+<p>This chart makes it a bit easier for us to understand some key takeaways. Firstly, we see that the single most successful Offensive Formation/Defensive Coverage combination (where success is measured in terms of Offensive EPA) is the Pistol Formation vs Cover 3 Zone. We also see that Shotgun vs Cover 2 Man is the worst combination for the offense to find itself in, which, on average, contributes a negative EPA.</p>
 <p>However, it is still a bit tricky to really make sense of how individual offensive formations perform against each other when seeing different devensive coverages, and which offensive formations are generally most effective, regardless of defensive formation. To address this, we can facet the box plots by offensive formation and look a little closer:</p>
 </section>
 <section id="faceted-boxplots-by-offensive-formation" class="level3" data-number="3.1.3">
@@ -493,7 +493,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>From the above, we can see a few interesting trends.</p>
-<p>One that immediately jumps out is that the Singleback formation is the only offensive formation where the average EPA is positive against every common defensive coverage it faces (with the exception of I Formation, which only has enough data against one formation).</p>
+<p>One that immediately jumps out is that the Singleback formation is the only offensive formation (with the exception of I Formation, which only has enough data against one formation) where the average EPA is positive against every common defensive coverage it faces.</p>
 <p>Another thing we notice here is that Cover 3 Zone is a top 2 formation in terms of EPA allowed against every offensive formation we see here, indicating that no matter which formation the offense comes out in, they would be happy to see themselves playing against a Cover 3 Zone formation.</p>
 <p>Lastly, we can see that the Pistol formation seems to be a bit higher risk, higher reward than our other formations, with the top overall formation/coverage combination (when going against Cover 3 Zone), but also one of the lowest performing combinations (when going against Cover 1 Man).</p>
 

@@ -3,6 +3,8 @@ title: "Timezones"
 editor: visual
 ---
 
+## Timezone Effect on Team Performance
+
 ```{r}
 library(dplyr)
 library(ggplot2)
@@ -15,7 +17,6 @@ scores <- scores %>%
     Home_Score = X.4,
     Away_Score = X.3
   )
-colnames(scores)
 team_tz <- data.frame(
   team = c("SEA", "SF", "LAR", "LAC", "LAV", "DEN", "ARI", "MIN","KC", "DAL", "HOU", "NO", "TEN", "CHI", "GB", "IND", "DL", "CLE", "ATL", "CAR","JAX", "TB", "MIA", "PIT", "BUF", "BAL", "PHI", "NYJ", "NYG", "NE", "CIN", "WAS" 
   ),
@@ -49,9 +50,11 @@ ggplot(games, aes(x = tz_diff, y = point_diff)) + geom_point(size = 3) + geom_sm
   )
 ```
 
-Another aspect of the schedule we were interested in was how travel affected the performance of teams. In order to look at this, we plotted the point differential of the away team and the home team to the time zone difference the away team faced. Though the the linear regression line has a slope of .79 for every time zone crossed, signifying for every timezone we cross we should expect our team to score .79 more points per game. However, the 95% confidence interval ranges from (-.90 , 2.49) meaning that we cannot be confident our slope is non-zero or even positive. Overall this shows that home teams traveling farther for their matches do not perform noticebly worse. Fans shouldn't be more worried that the Eagles have a game in San Francisco compared to Tampa. However, we did find that there was a negative intercept of -3.58 with a 95% confidence interval ranging from (-6.15, -1.00), meaning we can be confident that our intercept is indeed negative. This negative intercept for a point differential at an away game means that on average away teams in 2023 performed worse than home teams.
+Another aspect of the schedule we were interested in was how travel affected the performance of teams. In order to look at this, we plotted the point differential of the away team and the home team against the time zone difference the away team faced. The linear regression line has a slope of .79 for every time zone crossed, indicating that with every timezone we cross, we might expect the away team to score .79 more points per game, to our surprise. However, the 95% confidence interval ranges from (-.90 , 2.49) meaning that we cannot be confident our slope is non-zero or even positive. Overall this shows that teams traveling farther for their matches do not perform noticeably worse. Eagles fans shouldn't be more worried about a game in San Francisco compared to Tampa Bay. However, we did find that there was a negative intercept of -3.58 with a 95% confidence interval ranging from (-6.15, -1.00), meaning we can be confident that our intercept is indeed negative. This negative intercept for a point differential at an away game means that on average away teams in 2023 performed worse than home teams.
 
-This is what we would expect with the results, as it is generally known that home teams have an advantage. Beyond just a win record, we can see that blowouts are more likely to occur from home teams as well. From the graph, we can see that there were 6 games where the home team lost by 25 or more points. We can compare that with away teams which were blown out by 25 points or more 15 times over the regular season, one of which was by 50 points (Miami Dolphins hosting the Denver Broncos).
+This is what we would expect with the results, as it is generally known that home teams have an advantage. Beyond just a win record, we can see that blowouts are more likely to occur from home teams as well. From the graph, there were 6 games where the home team lost by 25 or more points. We can compare that with away teams which were blown out by 25 points or more 15 times over the regular season, one of which was by 50 points (Miami Dolphins hosting the Denver Broncos).
+
+## Linear Regression Outputs
 
 ```{r}
 
