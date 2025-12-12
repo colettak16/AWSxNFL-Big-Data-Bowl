@@ -1,0 +1,2304 @@
+---
+title: "PRE vs. Post BYE Movement"
+editor: visual
+---
+
+```{r}
+in_week1 <- read.csv("data/train/input_2023_w01.csv")
+in_week2 <- read.csv("data/train/input_2023_w02.csv")
+in_week3 <- read.csv("data/train/input_2023_w03.csv")
+in_week4 <- read.csv("data/train/input_2023_w04.csv")
+in_week5 <- read.csv("data/train/input_2023_w05.csv")
+in_week6 <- read.csv("data/train/input_2023_w06.csv")
+in_week7 <- read.csv("data/train/input_2023_w07.csv")
+in_week8 <- read.csv("data/train/input_2023_w08.csv")
+in_week9 <- read.csv("data/train/input_2023_w09.csv")
+in_week10 <- read.csv("data/train/input_2023_w10.csv")
+in_week11 <- read.csv("data/train/input_2023_w11.csv")
+in_week12 <- read.csv("data/train/input_2023_w12.csv")
+in_week13 <- read.csv("data/train/input_2023_w13.csv")
+in_week14 <- read.csv("data/train/input_2023_w14.csv")
+in_week15 <- read.csv("data/train/input_2023_w15.csv")
+in_week16 <- read.csv("data/train/input_2023_w16.csv")
+in_week17 <- read.csv("data/train/input_2023_w17.csv")
+in_week18 <- read.csv("data/train/input_2023_w18.csv")
+
+sup_data <- read.csv("data/supplementary_data.csv")
+
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+print(sup_data)
+CLE_W4_PID <- sup_data %>%
+  filter(week == 4 & (home_team_abbr == 'CLE' | visitor_team_abbr == 'CLE'))
+
+CLE_W6_PID <- sup_data %>%
+  filter(week == 6 & (home_team_abbr == 'CLE' | visitor_team_abbr == 'CLE'))
+
+CLE_W4_plays <- in_week4 %>%
+  filter(in_week4$play_id %in% CLE_W4_PID$play_id)
+
+total_distanceCLE4 <- CLE_W4_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+CLE_W6_plays <- in_week6 %>%
+  filter(in_week6$play_id %in% CLE_W6_PID$play_id)
+
+total_distanceCLE6 <- CLE_W6_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceCLE4<- total_distanceCLE4 %>% mutate(group = "PRE")
+total_distanceCLE6<- total_distanceCLE6 %>% mutate(group = "POST")
+CLE_Combined <- bind_rows(total_distanceCLE4, total_distanceCLE6)
+
+ggplot(CLE_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) + theme_minimal()
+
+
+```
+
+Another aspect we were interested in looking at was how the schedules of teams might affect their performance during the regular season. The NFL is divided into two halves called conferences, with each of those conferences divided into quarters, called divisions. Within a team's 18 week schedule, they will play their fellow conference rivals each twice, once away and once home. 4 games area against an entire division within the the team's conference with two home and two away and an additional 4 games are against an entire division within the opposing conference with two home and two away. Two additional games are against teams in the same conference, with one home and one away, and a final team is against a non-conference and already non-played team. A bye-week is also given to every team during the season. Within these schedules, one question we had was how the bye week might affect players.
+
+One thing we decided to look at was how much players were running on average across a game. While we were not able to get the precise amount of how far each player was running since our data was given to us in frames, we could look at the shift between frames and use that as an approximation for the distance. We could then plot these distances to get a distribution across the game and see if there was a large difference between before and after the bye.
+
+When initially looking at the first team, the Cleveland Browns, we were surprised to see a big difference in distribution before and after the bye. Before the bye we see the distribution of distances is narrow, barely going beyond 1 yard, whereas after the bye we see the distribution of distances is much wider.
+
+```{r}
+LAC_W4_PID <- sup_data %>%
+  filter(week == 4 & (home_team_abbr == 'LAC' | visitor_team_abbr == 'LAC'))
+
+LAC_W6_PID <- sup_data %>%
+  filter(week == 6 & (home_team_abbr == 'LAC' | visitor_team_abbr == 'LAC'))
+
+LAC_W4_plays <- in_week4 %>%
+  filter(in_week4$play_id %in% LAC_W4_PID$play_id)
+
+total_distanceLAC4 <- LAC_W4_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+LAC_W6_plays <- in_week6 %>%
+  filter(in_week6$play_id %in% LAC_W6_PID$play_id)
+
+total_distanceLAC6 <- LAC_W6_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceLAC4<- total_distanceLAC4 %>% mutate(group = "PRE")
+total_distanceLAC6<- total_distanceLAC6 %>% mutate(group = "POST")
+LAC_Combined <- bind_rows(total_distanceLAC4, total_distanceLAC6)
+
+#total_distance_PRE <- bind_rows(total_distanceCLE4, total_distanceLAC4)
+#total_distance_POST <- bind_rows(total_distanceCLE6, total_distanceLAC6)
+
+ggplot(LAC_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal()
+```
+
+Looking continuing the investigation we see that again for the Los Angelos Chargers, the distribution of movement before the bye week is much wider than the post bye week.
+
+```{r}
+SEA_W4_PID <- sup_data %>%
+  filter(week == 4 & (home_team_abbr == 'SEA' | visitor_team_abbr == 'SEA'))
+
+SEA_W6_PID <- sup_data %>%
+  filter(week == 6 & (home_team_abbr == 'SEA' | visitor_team_abbr == 'SEA'))
+
+SEA_W4_plays <- in_week4 %>%
+  filter(in_week4$play_id %in% SEA_W4_PID$play_id)
+
+total_distanceSEA4 <- SEA_W4_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+SEA_W6_plays <- in_week6 %>%
+  filter(in_week6$play_id %in% SEA_W6_PID$play_id)
+
+total_distanceSEA6 <- SEA_W6_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceSEA4<- total_distanceSEA4 %>% mutate(group = "PRE")
+total_distanceSEA6<- total_distanceSEA6 %>% mutate(group = "POST")
+SEA_Combined <- bind_rows(total_distanceSEA4, total_distanceSEA6)
+#total_distance_PRE <- bind_rows(total_distance_PRE, total_distanceSEA4)
+#total_distance_POST <- bind_rows(total_distance_POST, total_distanceSEA6)
+ggplot(SEA_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal()
+print(SEA_Combined)
+```
+
+```{r}
+TB_W4_PID <- sup_data %>%
+  filter(week == 4 & (home_team_abbr == 'TB' | visitor_team_abbr == 'TB'))
+
+TB_W6_PID <- sup_data %>%
+  filter(week == 6 & (home_team_abbr == 'TB' | visitor_team_abbr == 'TB'))
+
+TB_W4_plays <- in_week4 %>%
+  filter(in_week4$play_id %in% TB_W4_PID$play_id)
+print(TB_W4_plays)
+total_distanceTB4 <- TB_W4_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+TB_W6_plays <- in_week6 %>%
+  filter(in_week6$play_id %in% TB_W6_PID$play_id)
+
+total_distanceTB6 <- TB_W6_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceTB4<- total_distanceTB4 %>% mutate(group = "PRE")
+total_distanceTB6<- total_distanceTB6 %>% mutate(group = "POST")
+TB_Combined <- bind_rows(total_distanceTB4, total_distanceTB6)
+
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceTB4)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceTB6)
+ggplot(TB_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal()
+print(TB_Combined)
+```
+
+```{r}
+GB_W5_PID <- sup_data %>%
+  filter(week == 5 & (home_team_abbr == 'GB' | visitor_team_abbr == 'GB'))
+
+GB_W7_PID <- sup_data %>%
+  filter(week == 7 & (home_team_abbr == 'GB' | visitor_team_abbr == 'GB'))
+
+GB_W5_plays <- in_week5 %>%
+  filter(in_week5$play_id %in% GB_W5_PID$play_id)
+
+total_distanceGB5 <- GB_W5_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+GB_W7_plays <- in_week7 %>%
+  filter(in_week7$play_id %in% GB_W7_PID$play_id)
+
+total_distanceGB7 <- GB_W7_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceGB5<- total_distanceGB5 %>% mutate(group = "PRE")
+total_distanceGB7<- total_distanceGB7 %>% mutate(group = "POST")
+GB_Combined <- bind_rows(total_distanceGB5, total_distanceGB7)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceGB5)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceGB7)
+
+ggplot(GB_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+PIT_W5_PID <- sup_data %>%
+  filter(week == 5 & (home_team_abbr == 'PIT' | visitor_team_abbr == 'PIT'))
+
+PIT_W7_PID <- sup_data %>%
+  filter(week == 7 & (home_team_abbr == 'PIT' | visitor_team_abbr == 'PIT'))
+
+PIT_W5_plays <- in_week5 %>%
+  filter(in_week5$play_id %in% PIT_W5_PID$play_id)
+
+total_distancePIT5 <- PIT_W5_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+PIT_W7_plays <- in_week7 %>%
+  filter(in_week7$play_id %in% PIT_W7_PID$play_id)
+
+total_distancePIT7 <- PIT_W7_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distancePIT5<- total_distancePIT5 %>% mutate(group = "PRE")
+total_distancePIT7<- total_distancePIT7 %>% mutate(group = "POST")
+PIT_Combined <- bind_rows(total_distancePIT5, total_distancePIT7)
+
+print(PIT_Combined)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distancePIT5)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distancePIT7)
+ggplot(PIT_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+CAR_W6_PID <- sup_data %>%
+  filter(week == 6 & (home_team_abbr == 'CAR' | visitor_team_abbr == 'CAR'))
+
+CAR_W8_PID <- sup_data %>%
+  filter(week == 8 & (home_team_abbr == 'CAR' | visitor_team_abbr == 'CAR'))
+
+CAR_W6_plays <- in_week6 %>%
+  filter(in_week6$play_id %in% CAR_W6_PID$play_id)
+
+total_distanceCAR6 <- CAR_W6_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+CAR_W8_plays <- in_week8 %>%
+  filter(in_week8$play_id %in% CAR_W8_PID$play_id)
+
+total_distanceCAR8 <- CAR_W8_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceCAR6<- total_distanceCAR6 %>% mutate(group = "PRE")
+total_distanceCAR8<- total_distanceCAR8 %>% mutate(group = "POST")
+CAR_Combined <- bind_rows(total_distanceCAR6, total_distanceCAR8)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceCAR6)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceCAR8)
+
+ggplot(CAR_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+CIN_W6_PID <- sup_data %>%
+  filter(week == 6 & (home_team_abbr == 'CIN' | visitor_team_abbr == 'CIN'))
+
+CIN_W8_PID <- sup_data %>%
+  filter(week == 8 & (home_team_abbr == 'CIN' | visitor_team_abbr == 'CIN'))
+
+CIN_W6_plays <- in_week6 %>%
+  filter(in_week6$play_id %in% CIN_W6_PID$play_id)
+
+total_distanceCIN6 <- CIN_W6_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+CIN_W8_plays <- in_week8 %>%
+  filter(in_week8$play_id %in% CIN_W8_PID$play_id)
+
+total_distanceCIN8 <- CIN_W8_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceCIN6<- total_distanceCIN6 %>% mutate(group = "PRE")
+total_distanceCIN8<- total_distanceCIN8 %>% mutate(group = "POST")
+CIN_Combined <- bind_rows(total_distanceCIN6, total_distanceCIN8)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceCIN6)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceCIN8)
+
+ggplot(CIN_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+DAL_W6_PID <- sup_data %>%
+  filter(week == 6 & (home_team_abbr == 'DAL' | visitor_team_abbr == 'DAL'))
+
+DAL_W8_PID <- sup_data %>%
+  filter(week == 8 & (home_team_abbr == 'DAL' | visitor_team_abbr == 'DAL'))
+
+DAL_W6_plays <- in_week6 %>%
+  filter(play_id %in% DAL_W6_PID$play_id)
+
+total_distanceDAL6 <- DAL_W6_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+DAL_W8_plays <- in_week8 %>%
+  filter(play_id %in% DAL_W8_PID$play_id)
+
+total_distanceDAL8 <- DAL_W8_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceDAL6<- total_distanceDAL6 %>% mutate(group = "PRE")
+total_distanceDAL8<- total_distanceDAL8 %>% mutate(group = "POST")
+DAL_Combined <- bind_rows(total_distanceDAL6, total_distanceDAL8)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceDAL6)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceDAL8)
+
+print(ggplot(DAL_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+HOU_W6_PID <- sup_data %>%
+  filter(week == 6 & (home_team_abbr == 'HOU' | visitor_team_abbr == 'HOU'))
+
+HOU_W8_PID <- sup_data %>%
+  filter(week == 8 & (home_team_abbr == 'HOU' | visitor_team_abbr == 'HOU'))
+
+HOU_W6_plays <- in_week6 %>%
+  filter(play_id %in% HOU_W6_PID$play_id)
+
+total_distanceHOU6 <- HOU_W6_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+HOU_W8_plays <- in_week8 %>%
+  filter(play_id %in% HOU_W8_PID$play_id)
+
+total_distanceHOU8 <- HOU_W8_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceHOU6<- total_distanceHOU6 %>% mutate(group = "PRE")
+total_distanceHOU8<- total_distanceHOU8 %>% mutate(group = "POST")
+HOU_Combined <- bind_rows(total_distanceHOU6, total_distanceHOU8)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceHOU6)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceHOU8)
+
+print(ggplot(HOU_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+NYJ_W6_PID <- sup_data %>%
+  filter(week == 6 & (home_team_abbr == 'NYJ' | visitor_team_abbr == 'NYJ'))
+
+NYJ_W8_PID <- sup_data %>%
+  filter(week == 8 & (home_team_abbr == 'NYJ' | visitor_team_abbr == 'NYJ'))
+
+NYJ_W6_plays <- in_week6 %>%
+  filter(play_id %in% NYJ_W6_PID$play_id)
+
+total_distanceNYJ6 <- NYJ_W6_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+NYJ_W8_plays <- in_week8 %>%
+  filter(play_id %in% NYJ_W8_PID$play_id)
+
+total_distanceNYJ8 <- NYJ_W8_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceNYJ6<- total_distanceNYJ6 %>% mutate(group = "PRE")
+total_distanceNYJ8<- total_distanceNYJ8 %>% mutate(group = "POST")
+NYJ_Combined <- bind_rows(total_distanceNYJ6, total_distanceNYJ8)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceNYJ6)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceNYJ8)
+
+print(ggplot(NYJ_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+TEN_W6_PID <- sup_data %>%
+  filter(week == 6 & (home_team_abbr == 'TEN' | visitor_team_abbr == 'TEN'))
+
+TEN_W8_PID <- sup_data %>%
+  filter(week == 8 & (home_team_abbr == 'TEN' | visitor_team_abbr == 'TEN'))
+
+TEN_W6_plays <- in_week6 %>%
+  filter(play_id %in% TEN_W6_PID$play_id)
+
+total_distanceTEN6 <- TEN_W6_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+TEN_W8_plays <- in_week8 %>%
+  filter(play_id %in% TEN_W8_PID$play_id)
+
+total_distanceTEN8 <- TEN_W8_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceTEN6<- total_distanceTEN6 %>% mutate(group = "PRE")
+total_distanceTEN8<- total_distanceTEN8 %>% mutate(group = "POST")
+TEN_Combined <- bind_rows(total_distanceTEN6, total_distanceTEN8)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceTEN6)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceTEN8)
+
+print(ggplot(TEN_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+DB_W8_PID <- sup_data %>%
+  filter(week == 8 & (home_team_abbr == 'DEN' | visitor_team_abbr == 'DEN'))
+
+DB_W10_PID <- sup_data %>%
+  filter(week == 10 & (home_team_abbr == 'DEN' | visitor_team_abbr == 'DEN'))
+
+DB_W8_plays <- in_week8 %>%
+  filter(play_id %in% DB_W8_PID$play_id)
+
+total_distanceDB8 <- DB_W8_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+DB_W10_plays <- in_week10 %>%
+  filter(play_id %in% DB_W10_PID$play_id)
+
+total_distanceDB10 <- DB_W10_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceDB8<- total_distanceDB8 %>% mutate(group = "PRE")
+total_distanceDB10<- total_distanceDB10 %>% mutate(group = "POST")
+DB_Combined <- bind_rows(total_distanceDB8, total_distanceDB10)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceDB8)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceDB10)
+
+print(ggplot(DB_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+#Detroit Lions
+DL_W8_PID <- sup_data %>%
+  filter(week == 8 & (home_team_abbr == 'DET' | visitor_team_abbr == 'DET'))
+
+DL_W10_PID <- sup_data %>%
+  filter(week == 10 & (home_team_abbr == 'DET' | visitor_team_abbr == 'DET'))
+
+DL_W8_plays <- in_week8 %>%
+  filter(play_id %in% DL_W8_PID$play_id)
+
+total_distanceDL8 <- DL_W8_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+DL_W10_plays <- in_week10 %>%
+  filter(play_id %in% DL_W10_PID$play_id)
+
+total_distanceDL10 <- DL_W10_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceDL8<- total_distanceDL8 %>% mutate(group = "PRE")
+total_distanceDL10<- total_distanceDL10 %>% mutate(group = "POST")
+DL_Combined <- bind_rows(total_distanceDL8, total_distanceDL10)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceDL8)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceDL10)
+
+print(ggplot(DL_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+JAX_W8_PID <- sup_data %>%
+  filter(week == 8 & (home_team_abbr == 'JAX' | visitor_team_abbr == 'JAX'))
+
+JAX_W10_PID <- sup_data %>%
+  filter(week == 10 & (home_team_abbr == 'JAX' | visitor_team_abbr == 'JAX'))
+
+JAX_W8_plays <- in_week8 %>%
+  filter(play_id %in% JAX_W8_PID$play_id)
+
+total_distanceJAX8 <- JAX_W8_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+JAX_W10_plays <- in_week10 %>%
+  filter(play_id %in% JAX_W10_PID$play_id)
+
+total_distanceJAX10 <- JAX_W10_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceJAX8<- total_distanceJAX8 %>% mutate(group = "PRE")
+total_distanceJAX10<- total_distanceJAX10 %>% mutate(group = "POST")
+JAX_Combined <- bind_rows(total_distanceJAX8, total_distanceJAX10)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceJAX8)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceJAX10)
+
+print(ggplot(JAX_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+SF_W8_PID <- sup_data %>%
+  filter(week == 8 & (home_team_abbr == 'SF' | visitor_team_abbr == 'SF'))
+
+SF_W10_PID <- sup_data %>%
+  filter(week == 10 & (home_team_abbr == 'SF' | visitor_team_abbr == 'SF'))
+
+SF_W8_plays <- in_week8 %>%
+  filter(play_id %in% SF_W8_PID$play_id)
+
+total_distanceSF8 <- SF_W8_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+SF_W10_plays <- in_week10 %>%
+  filter(play_id %in% SF_W10_PID$play_id)
+
+total_distanceSF10 <- SF_W10_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceSF8<- total_distanceSF8 %>% mutate(group = "PRE")
+total_distanceSF10<- total_distanceSF10 %>% mutate(group = "POST")
+SF_Combined <- bind_rows(total_distanceSF8, total_distanceSF10)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceSF8)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceSF10)
+
+print(ggplot(SF_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+#Kansas City Chiefs
+KC_W9_PID <- sup_data %>%
+  filter(week == 9 & (home_team_abbr == 'KC' | visitor_team_abbr == 'KC'))
+
+KC_W11_PID <- sup_data %>%
+  filter(week == 11 & (home_team_abbr == 'KC' | visitor_team_abbr == 'KC'))
+
+KC_W9_plays <- in_week9 %>%
+  filter(play_id %in% KC_W9_PID$play_id)
+
+total_distanceKC9 <- KC_W9_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+KC_W11_plays <- in_week11 %>%
+  filter(play_id %in% KC_W11_PID$play_id)
+
+total_distanceKC11 <- KC_W11_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceKC9<- total_distanceKC9 %>% mutate(group = "PRE")
+total_distanceKC11<- total_distanceKC11 %>% mutate(group = "POST")
+KC_Combined <- bind_rows(total_distanceKC9, total_distanceKC11)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceKC9)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceKC11)
+
+print(ggplot(KC_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+#Los Angelos Rams
+LAR_W9_PID <- sup_data %>%
+  filter(week == 9 & (home_team_abbr == 'LA' | visitor_team_abbr == 'LA'))
+
+LAR_W11_PID <- sup_data %>%
+  filter(week == 11 & (home_team_abbr == 'LA' | visitor_team_abbr == 'LA'))
+
+LAR_W9_plays <- in_week9 %>%
+  filter(play_id %in% LAR_W9_PID$play_id)
+
+total_distanceLAR9 <- LAR_W9_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+LAR_W11_plays <- in_week11 %>%
+  filter(play_id %in% LAR_W11_PID$play_id)
+
+total_distanceLAR11 <- LAR_W11_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceLAR9<- total_distanceLAR9 %>% mutate(group = "PRE")
+total_distanceLAR11<- total_distanceLAR11 %>% mutate(group = "POST")
+LAR_Combined <- bind_rows(total_distanceLAR9, total_distanceLAR11)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceLAR9)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceLAR11)
+
+print(ggplot(LAR_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+#Miami Dolphins
+MIA_W9_PID <- sup_data %>%
+  filter(week == 9 & (home_team_abbr == 'MIA' | visitor_team_abbr == 'MIA'))
+
+MIA_W11_PID <- sup_data %>%
+  filter(week == 11 & (home_team_abbr == 'MIA' | visitor_team_abbr == 'MIA'))
+
+MIA_W9_plays <- in_week9 %>%
+  filter(play_id %in% MIA_W9_PID$play_id)
+
+total_distanceMIA9 <- MIA_W9_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+MIA_W11_plays <- in_week11 %>%
+  filter(play_id %in% MIA_W11_PID$play_id)
+
+total_distanceMIA11 <- MIA_W11_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceMIA9<- total_distanceMIA9 %>% mutate(group = "PRE")
+total_distanceMIA11<- total_distanceMIA11 %>% mutate(group = "POST")
+MIA_Combined <- bind_rows(total_distanceMIA9, total_distanceMIA11)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceMIA9)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceMIA11)
+
+print(ggplot(MIA_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+#Philadelphia Eagles
+PHI_W9_PID <- sup_data %>%
+  filter(week == 9 & (home_team_abbr == 'PHI' | visitor_team_abbr == 'PHI'))
+
+PHI_W11_PID <- sup_data %>%
+  filter(week == 11 & (home_team_abbr == 'PHI' | visitor_team_abbr == 'PHI'))
+
+PHI_W9_plays <- in_week9 %>%
+  filter(play_id %in% PHI_W9_PID$play_id)
+
+total_distancePHI9 <- PHI_W9_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+PHI_W11_plays <- in_week11 %>%
+  filter(play_id %in% PHI_W11_PID$play_id)
+
+total_distancePHI11 <- PHI_W11_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distancePHI9<- total_distancePHI9 %>% mutate(group = "PRE")
+total_distancePHI11<- total_distancePHI11 %>% mutate(group = "POST")
+PHI_Combined <- bind_rows(total_distancePHI9, total_distancePHI11)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distancePHI9)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distancePHI11)
+
+print(ggplot(PHI_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+#Atlanta Falcons
+ATL_W10_PID <- sup_data %>%
+  filter(week == 10 & (home_team_abbr == 'ATL' | visitor_team_abbr == 'ATL'))
+
+ATL_W12_PID <- sup_data %>%
+  filter(week == 12 & (home_team_abbr == 'ATL' | visitor_team_abbr == 'ATL'))
+
+ATL_W10_plays <- in_week10 %>%
+  filter(play_id %in% ATL_W10_PID$play_id)
+
+total_distanceATL10 <- ATL_W10_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+ATL_W12_plays <- in_week12 %>%
+  filter(play_id %in% ATL_W12_PID$play_id)
+
+total_distanceATL12 <- ATL_W12_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceATL10<- total_distanceATL10 %>% mutate(group = "PRE")
+total_distanceATL12<- total_distanceATL12 %>% mutate(group = "POST")
+ATL_Combined <- bind_rows(total_distanceATL10, total_distanceATL12)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceATL10)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceATL12)
+
+print(ggplot(ATL_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+#Indiana Colts
+IND_W10_PID <- sup_data %>%
+  filter(week == 10 & (home_team_abbr == 'IND' | visitor_team_abbr == 'IND'))
+
+IND_W12_PID <- sup_data %>%
+  filter(week == 12 & (home_team_abbr == 'IND' | visitor_team_abbr == 'IND'))
+
+IND_W10_plays <- in_week10 %>%
+  filter(play_id %in% IND_W10_PID$play_id)
+
+total_distanceIND10 <- IND_W10_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+IND_W12_plays <- in_week12 %>%
+  filter(play_id %in% IND_W12_PID$play_id)
+
+total_distanceIND12 <- IND_W12_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceIND10<- total_distanceIND10 %>% mutate(group = "PRE")
+total_distanceIND12<- total_distanceIND12 %>% mutate(group = "POST")
+IND_Combined <- bind_rows(total_distanceIND10, total_distanceIND12)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceIND10)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceIND12)
+
+print(ggplot(IND_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+#New England Patriots
+NE_W10_PID <- sup_data %>%
+  filter(week == 10 & (home_team_abbr == 'NE' | visitor_team_abbr == 'NE'))
+
+NE_W12_PID <- sup_data %>%
+  filter(week == 12 & (home_team_abbr == 'NE' | visitor_team_abbr == 'NE'))
+
+NE_W10_plays <- in_week10 %>%
+  filter(play_id %in% NE_W10_PID$play_id)
+
+total_distanceNE10 <- NE_W10_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+NE_W12_plays <- in_week12 %>%
+  filter(play_id %in% NE_W12_PID$play_id)
+
+total_distanceNE12 <- NE_W12_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceNE10<- total_distanceNE10 %>% mutate(group = "PRE")
+total_distanceNE12<- total_distanceNE12 %>% mutate(group = "POST")
+NE_Combined <- bind_rows(total_distanceNE10, total_distanceNE12)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceNE10)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceNE12)
+
+print(ggplot(NE_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+#New Orleans Saints
+NO_W10_PID <- sup_data %>%
+  filter(week == 10 & (home_team_abbr == 'NO' | visitor_team_abbr == 'NO'))
+
+NO_W12_PID <- sup_data %>%
+  filter(week == 12 & (home_team_abbr == 'NO' | visitor_team_abbr == 'NO'))
+
+NO_W10_plays <- in_week10 %>%
+  filter(play_id %in% NO_W10_PID$play_id)
+
+total_distanceNO10 <- NO_W10_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+NO_W12_plays <- in_week12 %>%
+  filter(play_id %in% NO_W12_PID$play_id)
+
+total_distanceNO12 <- NO_W12_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceNO10<- total_distanceNO10 %>% mutate(group = "PRE")
+total_distanceNO12<- total_distanceNO12 %>% mutate(group = "POST")
+NO_Combined <- bind_rows(total_distanceNO10, total_distanceNO12)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceNO10)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceNO12)
+
+print(ggplot(NO_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+#Baltimore Ravens
+BAL_W12_PID <- sup_data %>%
+  filter(week == 12 & (home_team_abbr == 'BAL' | visitor_team_abbr == 'BAL'))
+
+BAL_W14_PID <- sup_data %>%
+  filter(week == 14 & (home_team_abbr == 'BAL' | visitor_team_abbr == 'BAL'))
+
+BAL_W12_plays <- in_week12 %>%
+  filter(play_id %in% BAL_W12_PID$play_id)
+
+total_distanceBAL12 <- BAL_W12_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+BAL_W14_plays <- in_week14 %>%
+  filter(play_id %in% BAL_W14_PID$play_id)
+
+total_distanceBAL14 <- BAL_W14_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceBAL12<- total_distanceBAL12 %>% mutate(group = "PRE")
+total_distanceBAL14<- total_distanceBAL14 %>% mutate(group = "POST")
+BAL_Combined <- bind_rows(total_distanceBAL12, total_distanceBAL14)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceBAL12)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceBAL14)
+
+print(ggplot(BAL_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+#Buffalo Bills
+BUF_W12_PID <- sup_data %>%
+  filter(week == 12 & (home_team_abbr == 'BUF' | visitor_team_abbr == 'BUF'))
+
+BUF_W14_PID <- sup_data %>%
+  filter(week == 14 & (home_team_abbr == 'BUF' | visitor_team_abbr == 'BUF'))
+
+BUF_W12_plays <- in_week12 %>%
+  filter(play_id %in% BUF_W12_PID$play_id)
+
+total_distanceBUF12 <- BUF_W12_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+BUF_W14_plays <- in_week14 %>%
+  filter(play_id %in% BUF_W14_PID$play_id)
+
+total_distanceBUF14 <- BUF_W14_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceBUF12<- total_distanceBUF12 %>% mutate(group = "PRE")
+total_distanceBUF14<- total_distanceBUF14 %>% mutate(group = "POST")
+BUF_Combined <- bind_rows(total_distanceBUF12, total_distanceBUF14)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceBUF12)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceBUF14)
+
+print(ggplot(BUF_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+#Chicago Bears
+CHI_W12_PID <- sup_data %>%
+  filter(week == 12 & (home_team_abbr == 'CHI' | visitor_team_abbr == 'CHI'))
+
+CHI_W14_PID <- sup_data %>%
+  filter(week == 14 & (home_team_abbr == 'CHI' | visitor_team_abbr == 'CHI'))
+
+CHI_W12_plays <- in_week12 %>%
+  filter(play_id %in% CHI_W12_PID$play_id)
+
+total_distanceCHI12 <- CHI_W12_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+CHI_W14_plays <- in_week14 %>%
+  filter(play_id %in% CHI_W14_PID$play_id)
+
+total_distanceCHI14 <- CHI_W14_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceCHI12<- total_distanceCHI12 %>% mutate(group = "PRE")
+total_distanceCHI14<- total_distanceCHI14 %>% mutate(group = "POST")
+CHI_Combined <- bind_rows(total_distanceCHI12, total_distanceCHI14)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceCHI12)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceCHI14)
+
+print(ggplot(CHI_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+#Las Vegas Raiders
+
+LAV_W12_PID <- sup_data %>%
+  filter(week == 12 & (home_team_abbr == 'LV' | visitor_team_abbr == 'LV'))
+
+LAV_W14_PID <- sup_data %>%
+  filter(week == 14 & (home_team_abbr == 'LV' | visitor_team_abbr == 'LV'))
+
+LAV_W12_plays <- in_week12 %>%
+  filter(play_id %in% LAV_W12_PID$play_id)
+
+total_distanceLAV12 <- LAV_W12_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+LAV_W14_plays <- in_week14 %>%
+  filter(play_id %in% LAV_W14_PID$play_id)
+
+total_distanceLAV14 <- LAV_W14_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceLAV12<- total_distanceLAV12 %>% mutate(group = "PRE")
+total_distanceLAV14<- total_distanceLAV14 %>% mutate(group = "POST")
+LAV_Combined <- bind_rows(total_distanceLAV12, total_distanceLAV14)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceLAV12)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceLAV14)
+
+print(ggplot(LAV_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+#Minnesota Vikings
+
+MIN_W12_PID <- sup_data %>%
+  filter(week == 12 & (home_team_abbr == 'MIN' | visitor_team_abbr == 'MIN'))
+
+MIN_W14_PID <- sup_data %>%
+  filter(week == 14 & (home_team_abbr == 'MIN' | visitor_team_abbr == 'MIN'))
+
+MIN_W12_plays <- in_week12 %>%
+  filter(play_id %in% MIN_W12_PID$play_id)
+
+total_distanceMIN12 <- MIN_W12_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+MIN_W14_plays <- in_week14 %>%
+  filter(play_id %in% MIN_W14_PID$play_id)
+
+total_distanceMIN14 <- MIN_W14_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceMIN12<- total_distanceMIN12 %>% mutate(group = "PRE")
+total_distanceMIN14<- total_distanceMIN14 %>% mutate(group = "POST")
+MIN_Combined <- bind_rows(total_distanceMIN12, total_distanceMIN14)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceMIN12)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceMIN14)
+
+print(ggplot(MIN_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+#New York Giants
+
+NYG_W12_PID <- sup_data %>%
+  filter(week == 12 & (home_team_abbr == 'NYG' | visitor_team_abbr == 'NYG'))
+
+NYG_W14_PID <- sup_data %>%
+  filter(week == 14 & (home_team_abbr == 'NYG' | visitor_team_abbr == 'NYG'))
+
+NYG_W12_plays <- in_week12 %>%
+  filter(play_id %in% NYG_W12_PID$play_id)
+
+total_distanceNYG12 <- NYG_W12_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+NYG_W14_plays <- in_week14 %>%
+  filter(play_id %in% NYG_W14_PID$play_id)
+
+total_distanceNYG14 <- NYG_W14_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceNYG12<- total_distanceNYG12 %>% mutate(group = "PRE")
+total_distanceNYG14<- total_distanceNYG14 %>% mutate(group = "POST")
+NYG_Combined <- bind_rows(total_distanceNYG12, total_distanceNYG14)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceNYG12)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceNYG14)
+
+print(ggplot(NYG_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+#Arizona Cardinals
+
+ARI_W13_PID <- sup_data %>%
+  filter(week == 13 & (home_team_abbr == 'ARI' | visitor_team_abbr == 'ARI'))
+
+ARI_W15_PID <- sup_data %>%
+  filter(week == 15 & (home_team_abbr == 'ARI' | visitor_team_abbr == 'ARI'))
+
+ARI_W13_plays <- in_week13 %>%
+  filter(play_id %in% ARI_W13_PID$play_id)
+
+total_distanceARI13 <- ARI_W13_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+ARI_W15_plays <- in_week15 %>%
+  filter(play_id %in% ARI_W15_PID$play_id)
+
+total_distanceARI15 <- ARI_W15_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceARI13<- total_distanceARI13 %>% mutate(group = "PRE")
+total_distanceARI15<- total_distanceARI15 %>% mutate(group = "POST")
+ARI_Combined <- bind_rows(total_distanceARI13, total_distanceARI15)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceARI13)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceARI15)
+
+print(ggplot(ARI_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+#Washington Commanders
+
+WAS_W13_PID <- sup_data %>%
+  filter(week == 13 & (home_team_abbr == 'WAS' | visitor_team_abbr == 'WAS'))
+
+WAS_W15_PID <- sup_data %>%
+  filter(week == 15 & (home_team_abbr == 'WAS' | visitor_team_abbr == 'WAS'))
+
+WAS_W13_plays <- in_week13 %>%
+  filter(play_id %in% WAS_W13_PID$play_id)
+
+total_distanceWAS13 <- WAS_W13_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+WAS_W15_plays <- in_week15 %>%
+  filter(play_id %in% WAS_W15_PID$play_id)
+
+total_distanceWAS15 <- WAS_W15_plays %>%
+  arrange(play_id, nfl_id, frame_id) %>% 
+  group_by(play_id, nfl_id) %>%
+  mutate(
+    dx = x - lag(x),
+    dy = y - lag(y),
+    step_dist = sqrt(dx^2 + dy^2)
+  ) %>%
+  summarize(total_distance = sum(step_dist, na.rm = TRUE)
+)%>%
+  ungroup()
+
+total_distanceWAS13<- total_distanceWAS13 %>% mutate(group = "PRE")
+total_distanceWAS15<- total_distanceWAS15 %>% mutate(group = "POST")
+WAS_Combined <- bind_rows(total_distanceWAS13, total_distanceWAS15)
+#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceWAS13)
+#total_distance_POST <- bind_cols(total_distance_POST, total_distanceWAS15)
+
+print(ggplot(WAS_Combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = "Distance (yards)",
+    y = "Density"
+  ) +
+  theme_minimal())
+```
+
+```{r}
+total_distance_PRE <- bind_rows(total_distanceCLE4,total_distanceGB5,total_distanceLAC4,total_distanceSEA4, total_distanceTB4, total_distancePIT5, total_distanceCAR6, total_distanceCIN6, total_distanceDAL6, total_distanceHOU6, total_distanceNYJ6, total_distanceTEN6, total_distanceDB8, total_distanceLAR9, total_distanceMIA9, total_distancePHI9, total_distanceATL10, total_distanceIND10, total_distanceNE10,total_distanceNO10, total_distanceBAL12, total_distanceBUF12, total_distanceCHI12, total_distanceLAV12, total_distanceMIN12, total_distanceNYG12, total_distanceARI13, total_distanceWAS13, total_distanceDL8, total_distanceJAX8, total_distanceSF8, total_distanceKC9)
+
+total_distance_POST <- bind_rows(total_distanceCLE6,total_distanceGB7,total_distanceLAC6,total_distanceSEA6, total_distanceTB6, total_distancePIT7, total_distanceCAR8, total_distanceCIN8, total_distanceDAL8, total_distanceHOU8, total_distanceNYJ8, total_distanceTEN8, total_distanceDB10, total_distanceLAR11, total_distanceMIA11, total_distancePHI11, total_distanceATL12, total_distanceIND12, total_distanceNE12,total_distanceNO12, total_distanceBAL14, total_distanceBUF14, total_distanceCHI14, total_distanceLAV14, total_distanceMIN14, total_distanceNYG14, total_distanceARI15, total_distanceWAS15, total_distanceDL10, total_distanceJAX10, total_distanceSF10, total_distanceKC11)
+
+Total_combined <- bind_rows(total_distance_PRE, total_distance_POST)
+print(ggplot(Total_combined, aes(x = total_distance, fill = group)) +
+  geom_density(alpha = 0.5, color = NA) +
+  labs(
+    title = "Distribution of Player Distances by Team",
+    x = " Distance Ran By Player Per Play (yards)",
+    y = "Density"
+  ) + scale_fill_brewer(palette = "Set1")+ theme_minimal())
+
+```
+
+When we look at the total distribution of teams across the league, we see that the strong individual cases from before go away, and the two distributions look fairly similar with very little shift between them. This shows that though for individual teams, we might see a large difference between the energy before and after a bye week, across the entire league there is little difference.
+
+```{r}
+total_distanceCLE4<- total_distanceCLE4 %>% mutate(BYE_WEEK = 5)
+total_distanceCLE6<- total_distanceCLE6 %>% mutate(BYE_WEEK = 5)
+total_distanceLAC4<- total_distanceLAC4 %>% mutate(BYE_WEEK = 5)
+total_distanceLAC6<- total_distanceLAC6 %>% mutate(BYE_WEEK = 5)
+total_distanceSEA4<- total_distanceSEA4 %>% mutate(BYE_WEEK = 5)
+total_distanceSEA6<- total_distanceSEA6 %>% mutate(BYE_WEEK = 5)
+total_distanceTB4<- total_distanceTB4 %>% mutate(BYE_WEEK = 5)
+total_distanceTB6<- total_distanceTB6 %>% mutate(BYE_WEEK = 5)
+total_distanceGB5<- total_distanceGB5 %>% mutate(BYE_WEEK = 6)
+total_distanceGB7<- total_distanceGB7 %>% mutate(BYE_WEEK = 6)
+total_distancePIT5<- total_distancePIT5 %>% mutate(BYE_WEEK = 6)
+total_distancePIT7<- total_distancePIT7 %>% mutate(BYE_WEEK = 6)
+total_distanceCAR6<- total_distanceCAR6 %>% mutate(BYE_WEEK = 7)
+total_distanceCAR8<- total_distanceCAR8 %>% mutate(BYE_WEEK = 7)
+total_distanceCIN6<- total_distanceCIN6 %>% mutate(BYE_WEEK = 7)
+total_distanceCIN8<- total_distanceCIN8 %>% mutate(BYE_WEEK = 7)
+total_distanceDAL6<- total_distanceDAL6 %>% mutate(BYE_WEEK = 7)
+total_distanceDAL8<- total_distanceDAL8 %>% mutate(BYE_WEEK = 7)
+total_distanceHOU6<- total_distanceHOU6 %>% mutate(BYE_WEEK = 7)
+total_distanceHOU8<- total_distanceHOU8 %>% mutate(BYE_WEEK = 7)
+total_distanceNYJ6<- total_distanceNYJ6 %>% mutate(BYE_WEEK = 7)
+total_distanceNYJ8<- total_distanceNYJ8 %>% mutate(BYE_WEEK = 7)
+total_distanceTEN6<- total_distanceTEN6 %>% mutate(BYE_WEEK = 7)
+total_distanceTEN8<- total_distanceTEN8 %>% mutate(BYE_WEEK = 7)
+total_distanceDB8<- total_distanceDB8 %>% mutate(BYE_WEEK = 9)
+total_distanceDB10<- total_distanceDB10 %>% mutate(BYE_WEEK = 9)
+total_distanceDL8<- total_distanceDL8 %>% mutate(BYE_WEEK = 9)
+total_distanceDL10<- total_distanceDL10 %>% mutate(BYE_WEEK = 9)
+total_distanceJAX8<- total_distanceJAX8 %>% mutate(BYE_WEEK = 9)
+total_distanceJAX10<- total_distanceJAX10 %>% mutate(BYE_WEEK = 9)
+total_distanceSF8<- total_distanceSF8 %>% mutate(BYE_WEEK = 9)
+total_distanceSF10<- total_distanceSF10 %>% mutate(BYE_WEEK = 9)
+total_distanceKC9<- total_distanceKC9 %>% mutate(BYE_WEEK = 10)
+total_distanceKC11<- total_distanceKC11 %>% mutate(BYE_WEEK = 10)
+total_distanceLAR9<- total_distanceLAR9 %>% mutate(BYE_WEEK = 10)
+total_distanceLAR11<- total_distanceLAR11 %>% mutate(BYE_WEEK = 10)
+total_distanceMIA9<- total_distanceMIA9 %>% mutate(BYE_WEEK = 10)
+total_distanceMIA11<- total_distanceMIA11 %>% mutate(BYE_WEEK = 10)
+total_distancePHI9<- total_distancePHI9 %>% mutate(BYE_WEEK = 10)
+total_distancePHI11<- total_distancePHI11 %>% mutate(BYE_WEEK = 10)
+total_distanceATL10<- total_distanceATL10 %>% mutate(BYE_WEEK = 11)
+total_distanceATL12<- total_distanceATL12 %>% mutate(BYE_WEEK = 11)
+total_distanceIND10<- total_distanceIND10 %>% mutate(BYE_WEEK = 11)
+total_distanceIND12<- total_distanceIND12 %>% mutate(BYE_WEEK = 11)
+total_distanceNE10<- total_distanceNE10 %>% mutate(BYE_WEEK = 11)
+total_distanceNE12<- total_distanceNE12 %>% mutate(BYE_WEEK = 11)
+total_distanceNO10<- total_distanceNO10 %>% mutate(BYE_WEEK = 11)
+total_distanceNO12<- total_distanceNO12 %>% mutate(BYE_WEEK = 11)
+total_distanceBAL12<- total_distanceBAL12 %>% mutate(BYE_WEEK = 13)
+total_distanceBAL14<- total_distanceBAL14 %>% mutate(BYE_WEEK = 13)
+total_distanceBUF12<- total_distanceBUF12 %>% mutate(BYE_WEEK = 13)
+total_distanceBUF14<- total_distanceBUF14 %>% mutate(BYE_WEEK = 13)
+total_distanceCHI12<- total_distanceCHI12 %>% mutate(BYE_WEEK = 13)
+total_distanceCHI14<- total_distanceCHI14 %>% mutate(BYE_WEEK = 13)
+total_distanceLAV12<- total_distanceLAV12 %>% mutate(BYE_WEEK = 13)
+total_distanceLAV14<- total_distanceLAV14 %>% mutate(BYE_WEEK = 13)
+total_distanceMIN12<- total_distanceMIN12 %>% mutate(BYE_WEEK = 13)
+total_distanceMIN14<- total_distanceMIN14 %>% mutate(BYE_WEEK = 13)
+total_distanceNYG12<- total_distanceNYG12 %>% mutate(BYE_WEEK = 13)
+total_distanceNYG14<- total_distanceNYG14 %>% mutate(BYE_WEEK = 13)
+total_distanceARI13<- total_distanceARI13 %>% mutate(BYE_WEEK = 14)
+total_distanceARI15<- total_distanceARI15 %>% mutate(BYE_WEEK = 14)
+total_distanceWAS13<- total_distanceWAS13 %>% mutate(BYE_WEEK = 14)
+total_distanceWAS15<- total_distanceWAS15 %>% mutate(BYE_WEEK = 14)
+
+
+total_distance_PRE_BYE <- bind_rows(total_distanceCLE4,total_distanceGB5,total_distanceLAC4,total_distanceSEA4, total_distanceTB4, total_distancePIT5, total_distanceCAR6, total_distanceCIN6, total_distanceDAL6, total_distanceHOU6, total_distanceNYJ6, total_distanceTEN6, total_distanceDB8, total_distanceLAR9, total_distanceMIA9, total_distancePHI9, total_distanceATL10, total_distanceIND10, total_distanceNE10,total_distanceNO10, total_distanceBAL12, total_distanceBUF12, total_distanceCHI12, total_distanceLAV12, total_distanceMIN12, total_distanceNYG12, total_distanceARI13, total_distanceWAS13, total_distanceDL8, total_distanceJAX8, total_distanceSF8, total_distanceKC9)
+
+total_distance_POST_BYE <- bind_rows(total_distanceCLE6,total_distanceGB7,total_distanceLAC6,total_distanceSEA6, total_distanceTB6, total_distancePIT7, total_distanceCAR8, total_distanceCIN8, total_distanceDAL8, total_distanceHOU8, total_distanceNYJ8, total_distanceTEN8, total_distanceDB10, total_distanceLAR11, total_distanceMIA11, total_distancePHI11, total_distanceATL12, total_distanceIND12, total_distanceNE12,total_distanceNO12, total_distanceBAL14, total_distanceBUF14, total_distanceCHI14, total_distanceLAV14, total_distanceMIN14, total_distanceNYG14, total_distanceARI15, total_distanceWAS15, total_distanceDL10, total_distanceJAX10, total_distanceSF10, total_distanceKC11)
+
+```
+
+```{r fig.width = 20}
+BYE_WEEK_TOTAL_DIST <- bind_rows(total_distance_PRE_BYE, total_distance_POST_BYE)
+print(ggplot(BYE_WEEK_TOTAL_DIST, aes(x = total_distance, fill = group )) +
+  geom_density(alpha = 0.6, color = NA) +
+  labs(
+    title = "Distribution of Player Movement Per Play Over a Game Faceted by Bye Week",
+    x = "Distance of  (yards)",
+    y = "Density of "
+  ) + coord_cartesian(xlim = c(0, 20)) +
+  theme_minimal() + facet_wrap(~factor(BYE_WEEK)))
+```
+
+Faceting this distribution by where the bye week occurs, we see that the global observation holds mostly true for each week. Between all weeks, week 6 seems to have the largest difference between pre and post, with the pre-bye week having a larger percentage of the distribution on the right.
+
+```{R}
+total_distance_POST[is.na(total_distance_POST$BYE_WEEK), ]
+```
+
+```{r}
+CLE4_avg <- total_distanceCLE4 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+
+CLE6_avg <- total_distanceCLE6 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+LAC4_avg <- total_distanceLAC4 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+LAC6_avg <- total_distanceLAC6 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+SEA4_avg <- total_distanceSEA4 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+SEA6_avg <- total_distanceSEA6 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+TB4_avg <- total_distanceTB4 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+TB6_avg <- total_distanceTB6 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+GB5_avg <- total_distanceGB5 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+GB7_avg <- total_distanceGB7 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+PIT5_avg <- total_distancePIT5 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+PIT7_avg <- total_distancePIT7 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+CAR6_avg <- total_distanceCAR6 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+CAR8_avg <- total_distanceCAR8 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+CIN6_avg <- total_distanceCIN6 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+CIN8_avg <- total_distanceCIN8 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+DAL6_avg <- total_distanceDAL6 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+DAL8_avg <- total_distanceDAL8 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+HOU6_avg <- total_distanceHOU6 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+HOU8_avg <- total_distanceHOU8 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+NYJ6_avg <- total_distanceNYJ6 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+NYJ8_avg <- total_distanceNYJ8 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+TEN6_avg <- total_distanceTEN6 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+TEN8_avg <- total_distanceTEN8 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+DB8_avg <- total_distanceDB8 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+DB10_avg <- total_distanceDB10 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+DL8_avg <- total_distanceDL8 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+DL10_avg <- total_distanceDL10 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+JAX8_avg <- total_distanceJAX8 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+JAX10_avg <- total_distanceJAX10 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+SF8_avg <- total_distanceSF8 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+SF10_avg <- total_distanceSF10 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+KC9_avg <- total_distanceKC9 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+KC11_avg <- total_distanceKC11 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+LAR9_avg <- total_distanceLAR9 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+LAR11_avg <- total_distanceLAR11 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+MIA9_avg <- total_distanceMIA9 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+MIA11_avg <- total_distanceMIA11 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+PHI9_avg <- total_distancePHI9 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+PHI11_avg <- total_distancePHI11 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+ATL10_avg <- total_distanceATL10 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+ATL12_avg <- total_distanceATL12 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+IND10_avg <- total_distanceIND10 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+IND12_avg <- total_distanceIND12 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+NE10_avg <- total_distanceATL10 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+NE12_avg <- total_distanceNE12 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+NO10_avg <- total_distanceNO10 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+NO12_avg <- total_distanceNO12 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+BAL12_avg <- total_distanceBAL12 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+BAL14_avg <- total_distanceBAL14 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+BUF12_avg <- total_distanceBUF12 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+BUF14_avg <- total_distanceBUF14 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+CHI12_avg <- total_distanceCHI12 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+CHI14_avg <- total_distanceCHI14 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+LAV12_avg <- total_distanceLAV12 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+LAV14_avg <- total_distanceLAV14 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+MIN12_avg <- total_distanceMIN12 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+MIN14_avg <- total_distanceMIN14 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+NYG12_avg <- total_distanceNYG12 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+NYG14_avg <- total_distanceNYG14 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+ARI13_avg <- total_distanceARI13 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+ARI15_avg <- total_distanceARI15 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+WAS13_avg <- total_distanceWAS13 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+WAS15_avg <- total_distanceWAS15 %>%
+  summarise(
+    across(where(is.numeric), ~ mean(.x, na.rm = TRUE)),
+    across(where(is.character), ~ first(.x))
+  )
+
+PRE_BYE <- bind_rows(CLE4_avg, LAC4_avg, SEA4_avg, TB4_avg, GB5_avg, PIT5_avg, CAR6_avg, CIN6_avg, DAL6_avg, HOU6_avg, NYJ6_avg, TEN6_avg, DB8_avg, DL8_avg, JAX8_avg, SF8_avg, KC9_avg, LAR9_avg, MIA9_avg, PHI9_avg, ATL10_avg, IND10_avg, NE10_avg, NO10_avg, BAL12_avg, BUF12_avg, CHI12_avg, LAV12_avg, MIN12_avg, NYG12_avg, ARI13_avg, WAS13_avg)
+
+POST_BYE <- bind_rows(CLE6_avg, LAC6_avg, SEA6_avg, TB6_avg, GB7_avg, PIT7_avg, CAR8_avg, CIN8_avg, DAL8_avg, HOU8_avg, NYJ8_avg, TEN8_avg, DB10_avg, DL10_avg, JAX10_avg, SF10_avg, KC11_avg, LAR11_avg, MIA11_avg, PHI11_avg, ATL12_avg, IND12_avg, NE12_avg, NO12_avg, BAL14_avg, BUF14_avg, CHI14_avg, LAV14_avg, MIN14_avg, NYG14_avg, ARI15_avg, WAS15_avg)
+
+ALL_BYE <- bind_rows(PRE_BYE, POST_BYE)
+
+```
+
+```{r}
+TEST <- ALL_BYE %>%
+  group_by(BYE_WEEK, group)%>%
+  summarise(
+    avg_distance = mean(total_distance, na.rm = TRUE),
+    .group = "drop"
+  )
+ggplot(TEST, aes(x = avg_distance, y = factor(BYE_WEEK), color = group)) +
+  geom_point(size = 3, position = position_jitter(width = 0, height = 0.2)) +                      # dots for Pre/Post
+  geom_line(aes(group = BYE_WEEK), color = "gray", linetype = "dashed") + # optional connecting lines
+  theme_minimal() +
+  labs(
+    x = "Average Distance Ran by Player Per Play",
+    y = "BYE Week In Schedule",
+    title = "Movement Per Play In Game Pre/Post Bye-Week",
+    color = "Bye-Status"
+  )
+```
+
+Further looking into the schedule, we were curious if this still held true for all weeks or if we saw a difference in benefit of the bye as the season went along. While we first tried to map the distances in faceted density plots, we were not able to see much of a difference for any of them. So in addition we decided to look at a dot plot of the average distance of a player per play throughout a game. We first averaged the distance of each player per play throughout the game and then averaged all the teams with the same bye-week and plotted the pre and post movement on a Cleveland Dot-plot. From this graph, it is not clear that there is much differentiation between when the bye week occurs and how much it appeared to increase energy. Teams with a bye week 5,6, 7, and 11 have the largest separation in and out of the bye week, with week 6 having the largest separation. This might be because this early into the season teams are largely still trying to build themselves up and this break might mess up their rhythm. But as the season continues we see that the separation between the two games tightens for 10, 13, and 14. It is interesting to note that only two weeks, week 9 and 10, had a higher average distance returning from the bye week.
+
+```{r}
+library(scales)
+print(ALL_BYE)
+
+ggplot(ALL_BYE, aes(x = BYE_WEEK, y = total_distance, color = group)) + geom_point(size = 3) + theme_minimal() + scale_x_continuous(breaks = pretty_breaks())+
+  labs(
+  title = "Pre- vs. Post-Bye Average Distance by Bye Week ",
+  x = 'Bye Week',
+  y = "Avg. Dist. of Player's Movement Per Play Over Entire Game"
+)
+```
+
+```{r}
+library(dplyr)
+library(scales)
+scores <- read.csv("data/train/2023NFLSCORES.csv")
+scores <- scores %>%
+  rename(
+    Home_Team = X.1,
+    Away_Team = X.2,
+    Home_Score = X.4,
+    Away_Score = X.3
+  )
+colnames(scores)
+team_tz <- data.frame(
+  team = c("SEA", "SF", "LAR", "LAC", "LAV", "DEN", "ARI", "MIN","KC", "DAL", "HOU", "NO", "TEN", "CHI", "GB", "IND", "DL", "CLE", "ATL", "CAR","JAX", "TB", "MIA", "PIT", "BUF", "BAL", "PHI", "NYJ", "NYG", "NE", "CIN", "WAS" 
+  ),
+  timezone = c("PST", "PST", "PST", "PST","PST", "MT", "MT", "CT", "CT", "CT", "CT", "CT", "CT", "CT", "CT", "ET", "ET", "ET", "ET", "ET", "ET", "ET", "ET", "ET", "ET", "ET", "ET", "ET", "ET", "ET", "ET", "ET" 
+               )
+)
+
+tz_map <- c(PST = -3, MT = -2, CT = -1, ET = 0)
+
+
+games <- scores %>%
+  left_join(team_tz, by = c('Home_Team' = 'team')) %>%
+  rename(home_tz = timezone) %>%
+  left_join(team_tz, by = c('Away_Team' = 'team'))%>%
+  rename(away_tz = timezone)
+
+games <- games %>%
+  mutate(
+    Home_Score = as.numeric(Home_Score),
+    Away_Score = as.numeric(Away_Score),
+    home_offset = tz_map[home_tz],
+    away_offset = tz_map[away_tz],
+    tz_diff = home_offset - away_offset,
+    point_diff = Away_Score - Home_Score,
+  )
+
+ggplot(games, aes(x = tz_diff, y = point_diff)) + geom_point(size = 3) + theme_minimal() + scale_x_continuous(breaks = pretty_breaks())
+```
+
+```{r}
+ggplot(games, aes(x = tz_diff, y = point_diff)) + geom_point(size = 3) + geom_smooth(method = "lm", se = TRUE, color = 'red') + theme_minimal() +
+  scale_x_continuous(breaks = pretty_breaks()) + labs(
+    x = 'Away Team Time Zone Difference',
+    y = 'Away Team Game Point Differential'
+  )
+```
+
+Another aspect of the schedule we were interested in was how travel affected the performance of teams. In order to look at this, we plotted the point differential of the away team and the home team to the time zone difference the away team faced. When we plotted a line, we saw that it was flat with almost no slope. This shows that home teams traveling farther for their matches do not necessarily do worse. We shouldn't be worried that the Eagles have a game in Tampa any more than if they have one in San Francisco. Though the line didn't have much slope, what was interesting to discover was that it did have a negative intercept. A negative intercept for a point differential at an away game means that on average away teams in 2023 performed worse than home teams.
+
+This is interesting since the hosting the game is generally thought of as an advantage to the home team and teams do on average have a higher win percentage at home. What this is then suggesting is that when blow out games occur, the away team is more often the team to be the winner. And within the graph we can see that to be the case. From the graph, we can see that there were 6 games where the away team lost by 25 or more points. We can compare that with home teams that lost at least 15, one of which was by 50 points.
+
+```{r}
+ggplot(games, aes(x = tz_diff, y = point_diff)) + geom_point(size = 3) + stat_smooth(method = 'lm', formula = y ~exp(x), se = FALSE, color = 'red') + theme_minimal() +
+  scale_x_continuous(breaks = pretty_breaks()) + labs(
+    x = 'Away Team Time Zone Difference',
+    y = 'Away Team Game Point Differential'
+  )
+```
+
+```{r}
+far_away <- games %>%
+  filter(tz_diff != 0)
+
+
+ggplot(far_away, aes(x = tz_diff, y = point_diff)) + geom_point(size = 3) + stat_smooth(method = 'lm', formula = y ~exp(x), se = FALSE, color = 'red') + theme_minimal() +
+  scale_x_continuous(breaks = pretty_breaks()) + labs(
+    x = 'Away Team Time Zone Difference',
+    y = 'Away Team Game Point Differential'
+  )
+```

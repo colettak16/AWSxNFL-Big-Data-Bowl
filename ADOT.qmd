@@ -1,18 +1,21 @@
-Depth of Target by State and Month (Outdoor Stadiums Only)
+# Results (continued)
 
+## Depth of Target by State and Stage of Season (Outdoor Stadiums Only)
+
+Another area we'd like to explore is if teams that play in colder states generally throw the ball shallower during the later, colder months of the season, when compared to southern states that don't get cold. To do this, we must first remove any data for games that are played in dome stadiums that control the playing conditions no matter what time of year the game is played in. Then, we can group the data into 2 categories -- from weeks 1-4, and weeks 15-18. 
+
+Our expectation is that in colder states like Wisconsin, Illinois, New York, and Seattle, teams stop throwing the ball deep during the colder weeks late in the season, but that southern states like California, Florida, and Tennessee are less impacted by this.
+
+Let's see if this idea is true by calculating the Average Depth of Target (ADOT) change across each of these 2 groupings of data, for every state that hosts outdoor football games:
 ```{r}
 library(dplyr)
 library(ggplot2)
 library(maps)
 library(lubridate)
 library(tidyr)
-```
 
-```{r}
 # Reload supplementary data fresh to ensure we have all data
 supplementary_fresh <- read.csv("data/supplementary_data.csv")
-
-cat("Total rows in fresh supplementary data:", nrow(supplementary_fresh), "\n")
 
 # Define dome teams to exclude
 dome_teams <- c("NO", "DET", "MIN", "DAL", "HOU", "ARI", "ATL", "IND", "LV", "LAC")
@@ -32,9 +35,7 @@ team_to_state <- data.frame(
             "Tennessee", "Maryland"),
   stringsAsFactors = FALSE
 )
-```
 
-```{r}
 # Filter supplementary data for outdoor stadiums and valid pass plays
 # Create early season (weeks 1-4) vs late season (weeks 15-18) groupings
 pass_data <- supplementary_fresh |>
@@ -55,16 +56,6 @@ pass_data <- supplementary_fresh |>
   left_join(team_to_state, by = c("home_team_abbr" = "team_abbr")) |>
   filter(!is.na(state))
 
-# Check the data
-cat("Pass data by week:\n")
-print(table(pass_data$week))
-cat("\nPass data by season period:\n")
-print(table(pass_data$season_period))
-cat("\nPass data by state (top 10):\n")
-print(head(sort(table(pass_data$state), decreasing = TRUE), 10))
-```
-
-```{r}
 # Calculate average depth of target by state for early vs late season
 state_early_late <- pass_data |>
   filter(season_period %in% c("Early", "Late")) |>
@@ -74,20 +65,6 @@ state_early_late <- pass_data |>
     n_plays = n(),
     .groups = "drop"
   )
-
-# Check what we have before pivoting
-cat("\nNumber of state-period combinations:", nrow(state_early_late), "\n")
-cat("\nData before pivot:\n")
-print(state_early_late)
-cat("\nStates by season period crosstab:\n")
-state_period_table <- table(state_early_late$state, state_early_late$season_period)
-print(state_period_table)
-cat("\nStates that appear in BOTH Early and Late:\n")
-early_states <- state_early_late$state[state_early_late$season_period == "Early"]
-late_states <- state_early_late$state[state_early_late$season_period == "Late"]
-both_states <- intersect(early_states, late_states)
-cat(paste(both_states, collapse = ", "), "\n")
-cat("Number of states in both periods:", length(both_states), "\n")
 
 # Add region column
 state_early_late <- state_early_late |>
@@ -104,14 +81,10 @@ state_comparison <- state_early_late |>
   ) |>
   filter(!is.na(depth_change))
 
-cat("\nStates after pivot and filtering:\n")
-print(nrow(state_comparison))
-
 # Print summary
-cat("\nStates with Early and Late season data:\n")
-print(state_comparison |> select(state, region, avg_depth_Early, avg_depth_Late, depth_change, n_plays_Early, n_plays_Late))
+print(state_comparison |> select(state, avg_depth_Early, avg_depth_Late, depth_change, n_plays_Early, n_plays_Late))
 ```
-
+Putting this table on a map, we can visually see if our hypothesis that more southern states are less impacted by cold weather when it comes to throwing the ball deep:
 
 ```{r}
 # Get US state map data
@@ -158,25 +131,8 @@ ggplot(plot_data, aes(x = long, y = lat, group = group, fill = depth_change)) +
   )
 ```
 
-```{r}
-# Summary table showing average depth by season period
-period_summary <- pass_data |>
-  filter(season_period %in% c("Early", "Late")) |>
-  group_by(season_period) |>
-  summarise(
-    n_plays = n(),
-    avg_depth = mean(pass_length, na.rm = TRUE),
-    median_depth = median(pass_length, na.rm = TRUE),
-    sd_depth = sd(pass_length, na.rm = TRUE),
-    .groups = "drop"
-  )
+From the map, we see that our hypothesis holds true in some ways, but is disproven in others. States like Pennsylvania, Wisconsin, Ohio, Missouri, and Massachusettes all get extremely cold by the later weeks of the football season, and accordingly, we see that the ADOT for passing plays in these states lowers, compared to the beginning of the season -- particularly in Missouri, Ohio, and Pennsylvania. Additionally, we see warm states like California and Florida do NOT see a decrease in ADOT (and in fact, see a slight increase in ADOT). 
+However, contrary to our expectations, passing plays in Seattle, Colorado, New York , and especially Illinois do not see a decrease in ADOT. In fact, Colorado, New York, and Illinois see the 3 single largest increases in ADOT across every state in our dataset.
+Similarly, Tennesse, which is generally a "warm" state in comparison to most others, sees one of the strongest decreases in ADOT across the states in our dataset.
 
-print(period_summary)
-
-# Overall difference
-cat("\nOverall change in ADOT from Early to Late season:\n")
-cat(sprintf("%.2f yards",
-            period_summary$avg_depth[period_summary$season_period == "Late"] -
-            period_summary$avg_depth[period_summary$season_period == "Early"]))
-cat("\n(Positive = deeper passes late season, Negative = shorter passes late season)\n")
-```
+So, overall, it does not appear that we can conclude that colder weather is definitively more likely to cause teams to lower their ADOT.

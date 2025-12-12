@@ -1,18 +1,20 @@
 ---
-title: "more_results"
+title: "Results (continued)"
 editor: visual
 ---
+
+## Receiver Separation Analysis
+
+Another topic that we'd like to explore with this data set is Targeted Receiver Separation from Defenders. We'd like to find out which route runners are most effective at creating space to get open, as well as explore whether Play Action passing has a positive effect on generating more open receivers.
+
+To start, we need to manipulate our data to calculate the nearest defender to the targeted receiver for every play in our dataset, then group the plays together by the targeted receiver so that we can see which route runners are best at getting open:
 
 ```{r}
 library(ggplot2)
 library(dplyr)
 library(reticulate)
 library(lubridate)
-```
 
-## Receiver Separation Analysis
-
-```{r}
 in_week1 <- read.csv("data/train/input_2023_w01.csv")
 in_week2 <- read.csv("data/train/input_2023_w02.csv")
 in_week3 <- read.csv("data/train/input_2023_w03.csv")
@@ -32,10 +34,6 @@ in_week16 <- read.csv("data/train/input_2023_w16.csv")
 in_week17 <- read.csv("data/train/input_2023_w17.csv")
 in_week18 <- read.csv("data/train/input_2023_w18.csv")
 
-
-```
-
-```{r}
 out_week1 <- read.csv("data/train/output_2023_w01.csv")
 out_week2 <- read.csv("data/train/output_2023_w02.csv")
 out_week3 <- read.csv("data/train/output_2023_w03.csv")
@@ -57,54 +55,35 @@ out_week18 <- read.csv("data/train/output_2023_w18.csv")
 
 supplementary <- read.csv("data/supplementary_data.csv")
 
-```
-
-```{r}
 # Combine all weekly input data
 all_weeks <- bind_rows(
   in_week1, in_week2, in_week3, in_week4, in_week5, in_week6,
   in_week7, in_week8, in_week9, in_week10, in_week11, in_week12,
   in_week13, in_week14, in_week15, in_week16, in_week17, in_week18
 )
-```
 
-```{r}
 # For each play, get the final frame (ball arrival)
 ball_arrival_frames <- all_weeks |>
   group_by(game_id, play_id) |>
   summarise(arrival_frame = max(frame_id), .groups = "drop")
-```
 
-```{r}
 # Filter to ball arrival frame
 all_weeks_ball_arrival <- all_weeks |>
   inner_join(ball_arrival_frames, by = c("game_id", "play_id")) |>
   filter(frame_id == arrival_frame)
-```
 
-```{r}
 # Get defenders at ball arrival
 defenders <- all_weeks_ball_arrival |>
   filter(player_role == "Defensive Coverage") |>
   select(game_id, play_id, nfl_id, x, y) |>
   rename(defender_id = nfl_id, defender_x = x, defender_y = y)
-```
 
-```{r}
 # Get only targeted receivers at ball arrival
 # (excluding other route runners to avoid inflated separation from defenders moving toward target)
 receivers_and_runners <- all_weeks_ball_arrival |>
   filter(player_role == "Targeted Receiver") |>
   select(game_id, play_id, frame_id, nfl_id, x, y, player_role, player_position)
 
-# Check the distribution of player roles and positions
-cat("Player role distribution in receivers_and_runners:\n")
-print(table(receivers_and_runners$player_role))
-cat("\nPlayer position distribution in receivers_and_runners:\n")
-print(table(receivers_and_runners$player_position))
-```
-
-```{r}
 # Calculate nearest defender for each targeted receiver
 nearest_defenders <- receivers_and_runners |>
   inner_join(defenders, by = c("game_id", "play_id"), relationship = "many-to-many") |>
@@ -115,45 +94,20 @@ nearest_defenders <- receivers_and_runners |>
   select(game_id, play_id, frame_id, nfl_id,
          nearest_defender_id = defender_id,
          nearest_defender_distance = distance)
-```
 
-```{r}
 # Add nearest_defender_id and nearest_defender_distance columns to all_weeks
 all_weeks <- all_weeks |>
   left_join(nearest_defenders, by = c("game_id", "play_id", "frame_id", "nfl_id"))
-```
-
-```{r}
-all_weeks |>
-  filter(!is.na(nearest_defender_id) & !is.na(nearest_defender_distance)) |>
-  select(game_id, play_id, frame_id, nfl_id, player_role,
-         nearest_defender_id, nearest_defender_distance) |>
-  head(10)
-```
-
-## Clean up all_weeks to only include receivers
-
-```{r}
-library(dplyr)
-library(ggplot2)
 
 # Filter all_weeks to only include rows where nearest_defender columns are not NA
 # (i.e., only receivers/route runners)
 all_weeks_filtered <- all_weeks |>
   filter(!is.na(nearest_defender_id) & !is.na(nearest_defender_distance))
 
-# Verify the filtering worked
-cat("\nAfter filtering:\n")
-cat("Total rows after filtering:", nrow(all_weeks_filtered), "\n")
-cat("Unique player roles:", paste(unique(all_weeks_filtered$player_role), collapse = ", "), "\n")
 
 # Replace all_weeks with the filtered version
 all_weeks <- all_weeks_filtered
-```
 
-## Top 10 Receivers by Average Separation
-
-```{r}
 # Calculate average separation per receiver
 # Group by nfl_id and player name, count routes, and calculate average separation
 receiver_separation <- all_weeks |>
@@ -189,11 +143,15 @@ ggplot(receiver_separation, aes(x = reorder(player_name, avg_separation), y = av
   ) +
   ylim(0, max(receiver_separation$avg_separation) * 1.15)
 
-# Print the table
-print(receiver_separation)
 ```
 
+From the above, we can see the top 10 WRs from the 2023 NFL season in terms of getting open. We made sure to filter out players with under 50 targets so that we only include wideouts that have a reasonable sample size of targets. Unsurprisingly, the list contains many names of known speedsters across the league – players notable for their elite quickness. Players like Wan'Dale Robinson, Rashee Rice, Tyler Lockett, and Jayden Reed are all known for their deep-ball prominence and being able to get past the defense with their speed.
+
 ## Play Action Effect on Receiver Separation by Route Type
+
+One other aspect to analyze in this area is whether Play Action Pass (plays where the quarterback initially fakes a handoff to the runningback, but keeps the ball to then throw to a receiver) truly has a significant impact on being able to scheme receivers open for NFL offenses.
+
+However, we need to be somewhat careful with this analysis – play action play design can have a tendency to use some route types (Slant, Go, Post, Dig, etc.) significantly more than others, and different routes can have inherently different expectations for level of separation generated. So, in order to properly demonstrate this effect, we want to first facet by route type for each targeted pass, resulting in several different plots that show the rough densities of separation gained by the receiver in Play Action vs Standard passing plays:
 
 ```{r}
 # Join all_weeks with supplementary data to get play_action and route information
@@ -209,15 +167,6 @@ all_weeks_with_play_info <- all_weeks |>
     player_position == "WR"  # Only wide receivers
   )
 
-# Check the data
-cat("Play action distribution:\n")
-print(table(all_weeks_with_play_info$play_action))
-cat("\nRoute distribution:\n")
-print(table(all_weeks_with_play_info$route_of_targeted_receiver))
-cat("\nTotal observations:", nrow(all_weeks_with_play_info), "\n")
-```
-
-```{r}
 # Filter to routes with sufficient sample size (at least 100 observations)
 route_counts <- all_weeks_with_play_info |>
   group_by(route_of_targeted_receiver) |>
@@ -257,7 +206,12 @@ ggplot(all_weeks_filtered, aes(x = nearest_defender_distance, fill = play_action
   )
 ```
 
-```{r}
+From the above density plots, we can see that for most route types, there is generally a higher frequency of plays that have a low level of separation when the play type is standard, compared to play action. This indicates that play action *does* positively impact receiver separation from nearest defender, generally speaking. To get a more specific understanding, we can take a look at the overall average separation for each route type, filtered on Play Action vs Standard, and plot it as a Cleveland Dot Plot:
+
+### Cleveland Dot Plot: Separation by Route Type and Play Action
+
+```{r fig.height=8, fig.width=10}
+
 # Calculate summary statistics by route and play action
 separation_summary <- all_weeks_filtered |>
   group_by(route_of_targeted_receiver, play_action) |>
@@ -273,8 +227,46 @@ separation_summary <- all_weeks_filtered |>
 # Add play action labels
 separation_summary <- separation_summary |>
   mutate(play_action_label = ifelse(play_action == TRUE, "Play Action", "No Play Action"))
+# Get play action separation for ordering
+pa_order <- separation_summary |>
+  filter(play_action == TRUE) |>
+  arrange((mean_separation)) |>
+  pull(route_of_targeted_receiver)
 
-print(separation_summary)
+# Reorder the route factor based on play action separation
+separation_summary <- separation_summary |>
+  mutate(route_of_targeted_receiver = factor(route_of_targeted_receiver, levels = pa_order))
+
+# Create Cleveland dot plot
+ggplot(separation_summary, aes(x = mean_separation, y = route_of_targeted_receiver, color = play_action_label)) +
+  geom_line(aes(group = route_of_targeted_receiver), color = "grey70", linewidth = 1) +
+  geom_point(size = 4) +
+  scale_color_manual(
+    values = c("Play Action" = "#d95f02", "No Play Action" = "#1b9e77"),
+    name = "Play Type"
+  ) +
+  labs(
+    title = "Average WR Separation by Route Type and Play Action",
+    subtitle = "Ordered by Play Action separation (highest to lowest)",
+    x = "Mean Separation from Nearest Defender (yards)",
+    y = "Route Type"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    plot.subtitle = element_text(size = 10),
+    axis.text.y = element_text(size = 10),
+    axis.text.x = element_text(size = 10),
+    legend.position = "bottom",
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.x = element_blank()
+  )
 ```
 
-##
+Once again, we see that in nearly every case, the Play Action cases of each route type leads to a higher amount of receiver separation from the nearest defender. The only exceptions to this trend are Slant routes and Hitch routes.
+
+Table, for specific values:
+
+```{r}
+print(separation_summary)
+```

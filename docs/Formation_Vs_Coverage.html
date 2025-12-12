@@ -169,13 +169,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./more_results.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">more_results</span></span></a>
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Results (continued)</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ADOT.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Reload supplementary data fresh to ensure we have all data</span></span></a>
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Depth of Target by State and Stage of Season (Outdoor Stadiums Only)</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -194,10 +194,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#adding-offensedefense-win-probability-columns" id="toc-adding-offensedefense-win-probability-columns" class="nav-link active" data-scroll-target="#adding-offensedefense-win-probability-columns"><span class="header-section-number">3.1</span> Adding Offense/Defense Win Probability Columns</a></li>
-  <li><a href="#formation-vs-coverage-heatmaps" id="toc-formation-vs-coverage-heatmaps" class="nav-link" data-scroll-target="#formation-vs-coverage-heatmaps"><span class="header-section-number">3.2</span> Formation vs Coverage Heatmaps</a></li>
-  <li><a href="#formation-vs-coverage-epa-boxplots" id="toc-formation-vs-coverage-epa-boxplots" class="nav-link" data-scroll-target="#formation-vs-coverage-epa-boxplots"><span class="header-section-number">3.3</span> Formation vs Coverage EPA Boxplots</a></li>
-  <li><a href="#faceted-boxplots-by-offensive-formation" id="toc-faceted-boxplots-by-offensive-formation" class="nav-link" data-scroll-target="#faceted-boxplots-by-offensive-formation"><span class="header-section-number">3.4</span> Faceted Boxplots by Offensive Formation</a></li>
+  <li><a href="#offensive-formation-vs-defensive-coverage-effectivity" id="toc-offensive-formation-vs-defensive-coverage-effectivity" class="nav-link active" data-scroll-target="#offensive-formation-vs-defensive-coverage-effectivity"><span class="header-section-number">3.1</span> Offensive Formation vs Defensive Coverage Effectivity</a>
+  <ul class="collapse">
+  <li><a href="#scatterplot-of-each-formation-vs-coverage-combination-and-their-respective-epa-vs-win-probability-added" id="toc-scatterplot-of-each-formation-vs-coverage-combination-and-their-respective-epa-vs-win-probability-added" class="nav-link" data-scroll-target="#scatterplot-of-each-formation-vs-coverage-combination-and-their-respective-epa-vs-win-probability-added"><span class="header-section-number">3.1.1</span> Scatterplot of each formation vs coverage combination and their respective EPA vs Win Probability Added</a></li>
+  <li><a href="#formation-vs-coverage-epa-boxplots" id="toc-formation-vs-coverage-epa-boxplots" class="nav-link" data-scroll-target="#formation-vs-coverage-epa-boxplots"><span class="header-section-number">3.1.2</span> Formation vs Coverage EPA Boxplots</a></li>
+  <li><a href="#faceted-boxplots-by-offensive-formation" id="toc-faceted-boxplots-by-offensive-formation" class="nav-link" data-scroll-target="#faceted-boxplots-by-offensive-formation"><span class="header-section-number">3.1.3</span> Faceted Boxplots by Offensive Formation</a></li>
+  </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/colettak16/AWSxNFL-Big-Data-Bowl/edit/main/Formation_Vs_Coverage.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/colettak16/AWSxNFL-Big-Data-Bowl/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -223,355 +225,268 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<section id="offensive-formation-vs-defensive-coverage-effectivity" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="offensive-formation-vs-defensive-coverage-effectivity"><span class="header-section-number">3.1</span> Offensive Formation vs Defensive Coverage Effectivity</h2>
+<p>One thing we’d like to use this data to understand is which types of situations are advantageous for offenses when it comes to playcalling. Can we find out which offensive formations are most likely to be successful, especially if we know the opposing team has a tendency to call a specific defensive coverage?</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>in_week1 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w01.csv"</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>in_week2 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w02.csv"</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>in_week3 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w03.csv"</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>in_week4 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w04.csv"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>in_week5 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w05.csv"</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>in_week6 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w06.csv"</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>in_week7 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w07.csv"</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>in_week8 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w08.csv"</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>in_week9 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w09.csv"</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>in_week10 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w10.csv"</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>in_week11 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w11.csv"</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>in_week12 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w12.csv"</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>in_week13 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w13.csv"</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>in_week14 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w14.csv"</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>in_week15 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w15.csv"</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>in_week16 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w16.csv"</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>in_week17 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w17.csv"</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>in_week18 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w18.csv"</span>)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>out_week1 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w01.csv"</span>)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>out_week2 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w02.csv"</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>out_week3 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w03.csv"</span>)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>out_week4 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w04.csv"</span>)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>out_week5 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w05.csv"</span>)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>out_week6 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w06.csv"</span>)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>out_week7 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w07.csv"</span>)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>out_week8 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w08.csv"</span>)</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>out_week9 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w09.csv"</span>)</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>out_week10 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w10.csv"</span>)</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>out_week11 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w11.csv"</span>)</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>out_week12 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w12.csv"</span>)</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>out_week13 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w13.csv"</span>)</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>out_week14 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w14.csv"</span>)</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>out_week15 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w15.csv"</span>)</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>out_week16 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w16.csv"</span>)</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>out_week17 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w17.csv"</span>)</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>out_week18 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w18.csv"</span>)</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>supplementary <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/supplementary_data.csv"</span>)</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="co"># Create offense_win_probability_added and defense_win_probability_added columns</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="co"># Logic: If possession_team == home_team, offense gets home WPA, defense gets visitor WPA</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a><span class="co">#        If possession_team == visitor_team, offense gets visitor WPA, defense gets home WPA</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>supplementary <span class="ot">&lt;-</span> supplementary <span class="sc">|&gt;</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">offense_win_probability_added =</span> <span class="fu">ifelse</span>(</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>      possession_team <span class="sc">==</span> home_team_abbr,</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>      home_team_win_probability_added,</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>      visitor_team_win_probility_added</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">defense_win_probability_added =</span> <span class="fu">ifelse</span>(</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>      possession_team <span class="sc">==</span> home_team_abbr,</span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>      visitor_team_win_probility_added,</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>      home_team_win_probability_added</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove NA values for the variables we're plotting</span></span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>supp_clean <span class="ot">&lt;-</span> supplementary <span class="sc">|&gt;</span></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(offense_formation) <span class="sc">&amp;</span></span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span><span class="fu">is.na</span>(team_coverage_type) <span class="sc">&amp;</span></span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span><span class="fu">is.na</span>(expected_points_added) <span class="sc">&amp;</span></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span><span class="fu">is.na</span>(offense_win_probability_added))</span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a><span class="co"># Get all unique combinations of offense_formation and team_coverage_type</span></span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>formations <span class="ot">&lt;-</span> <span class="fu">unique</span>(supp_clean<span class="sc">$</span>offense_formation)</span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>coverages <span class="ot">&lt;-</span> <span class="fu">unique</span>(supp_clean<span class="sc">$</span>team_coverage_type)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'ggplot2' was built under R version 4.5.2</code></pre>
 </div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'dplyr'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:stats':
-
-    filter, lag</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:base':
-
-    intersect, setdiff, setequal, union</code></pre>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reticulate)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-</div>
+<section id="scatterplot-of-each-formation-vs-coverage-combination-and-their-respective-epa-vs-win-probability-added" class="level3" data-number="3.1.1">
+<h3 data-number="3.1.1" class="anchored" data-anchor-id="scatterplot-of-each-formation-vs-coverage-combination-and-their-respective-epa-vs-win-probability-added"><span class="header-section-number">3.1.1</span> Scatterplot of each formation vs coverage combination and their respective EPA vs Win Probability Added</h3>
+<p>The first thing we can do to answer this question is view every combination of offensive formation and defensive coverage and get a general sense of both the frequency with which each combination occurs, as well as how generally successful that combination tends to be.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>in_week1 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w01.csv"</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>in_week2 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w02.csv"</span>)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>in_week3 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w03.csv"</span>)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>in_week4 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w04.csv"</span>)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>in_week5 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w05.csv"</span>)</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>in_week6 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w06.csv"</span>)</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>in_week7 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w07.csv"</span>)</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>in_week8 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w08.csv"</span>)</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>in_week9 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w09.csv"</span>)</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>in_week10 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w10.csv"</span>)</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>in_week11 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w11.csv"</span>)</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>in_week12 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w12.csv"</span>)</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>in_week13 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w13.csv"</span>)</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>in_week14 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w14.csv"</span>)</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>in_week15 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w15.csv"</span>)</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>in_week16 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w16.csv"</span>)</span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>in_week17 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w17.csv"</span>)</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>in_week18 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w18.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-</div>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>out_week1 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w01.csv"</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>out_week2 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w02.csv"</span>)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>out_week3 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w03.csv"</span>)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>out_week4 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w04.csv"</span>)</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>out_week5 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w05.csv"</span>)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>out_week6 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w06.csv"</span>)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>out_week7 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w07.csv"</span>)</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>out_week8 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w08.csv"</span>)</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>out_week9 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w09.csv"</span>)</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>out_week10 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w10.csv"</span>)</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>out_week11 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w11.csv"</span>)</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>out_week12 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w12.csv"</span>)</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>out_week13 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w13.csv"</span>)</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>out_week14 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w14.csv"</span>)</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>out_week15 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w15.csv"</span>)</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>out_week16 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w16.csv"</span>)</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>out_week17 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w17.csv"</span>)</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>out_week18 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w18.csv"</span>)</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>supplementary <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/supplementary_data.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-</div>
-<section id="adding-offensedefense-win-probability-columns" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="adding-offensedefense-win-probability-columns"><span class="header-section-number">3.1</span> Adding Offense/Defense Win Probability Columns</h2>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create offense_win_probability_added and defense_win_probability_added columns</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Logic: If possession_team == home_team, offense gets home WPA, defense gets visitor WPA</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">#        If possession_team == visitor_team, offense gets visitor WPA, defense gets home WPA</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>supplementary <span class="ot">&lt;-</span> supplementary <span class="sc">|&gt;</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">offense_win_probability_added =</span> <span class="fu">ifelse</span>(</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>      possession_team <span class="sc">==</span> home_team_abbr,</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>      home_team_win_probability_added,</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>      visitor_team_win_probility_added</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">defense_win_probability_added =</span> <span class="fu">ifelse</span>(</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>      possession_team <span class="sc">==</span> home_team_abbr,</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>      visitor_team_win_probility_added,</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>      home_team_win_probability_added</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify the new columns</span></span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(supplementary <span class="sc">|&gt;</span></span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(possession_team, home_team_abbr, visitor_team_abbr,</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>         home_team_win_probability_added, visitor_team_win_probility_added,</span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>         offense_win_probability_added, defense_win_probability_added), <span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>   possession_team home_team_abbr visitor_team_abbr
-1              DET             KC               DET
-2              DET             KC               DET
-3              DET             KC               DET
-4               KC             KC               DET
-5               KC             KC               DET
-6              DET             KC               DET
-7              DET             KC               DET
-8               KC             KC               DET
-9              DET             KC               DET
-10             DET             KC               DET
-   home_team_win_probability_added visitor_team_win_probility_added
-1                    -8.114887e-02                     8.114887e-02
-2                    -2.941547e-02                     2.941547e-02
-3                     7.912815e-04                    -7.912815e-04
-4                     4.184281e-02                    -4.184281e-02
-5                     6.088614e-05                    -6.088614e-05
-6                     4.971957e-02                    -4.971957e-02
-7                    -9.945386e-02                     9.945386e-02
-8                    -1.120628e-02                     1.120628e-02
-9                    -1.698421e-02                     1.698421e-02
-10                    2.059924e-02                    -2.059924e-02
-   offense_win_probability_added defense_win_probability_added
-1                   8.114887e-02                 -8.114887e-02
-2                   2.941547e-02                 -2.941547e-02
-3                  -7.912815e-04                  7.912815e-04
-4                   4.184281e-02                 -4.184281e-02
-5                   6.088614e-05                 -6.088614e-05
-6                  -4.971957e-02                  4.971957e-02
-7                   9.945386e-02                 -9.945386e-02
-8                  -1.120628e-02                  1.120628e-02
-9                   1.698421e-02                 -1.698421e-02
-10                 -2.059924e-02                  2.059924e-02</code></pre>
-</div>
-</div>
-</section>
-<section id="formation-vs-coverage-heatmaps" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="formation-vs-coverage-heatmaps"><span class="header-section-number">3.2</span> Formation vs Coverage Heatmaps</h2>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove NA values for the variables we're plotting</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>supp_clean <span class="ot">&lt;-</span> supplementary <span class="sc">|&gt;</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(offense_formation) <span class="sc">&amp;</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span><span class="fu">is.na</span>(team_coverage_type) <span class="sc">&amp;</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span><span class="fu">is.na</span>(expected_points_added) <span class="sc">&amp;</span></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span><span class="fu">is.na</span>(offense_win_probability_added))</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Get all unique combinations of offense_formation and team_coverage_type</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>formations <span class="ot">&lt;-</span> <span class="fu">unique</span>(supp_clean<span class="sc">$</span>offense_formation)</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>coverages <span class="ot">&lt;-</span> <span class="fu">unique</span>(supp_clean<span class="sc">$</span>team_coverage_type)</span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a faceted scatter plot for all combinations</span></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(supp_clean, <span class="fu">aes</span>(<span class="at">x =</span> expected_points_added, <span class="at">y =</span> offense_win_probability_added)) <span class="sc">+</span></span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="fl">0.8</span>, <span class="at">color =</span> <span class="st">"#2c7fb8"</span>) <span class="sc">+</span></span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(team_coverage_type <span class="sc">~</span> offense_formation) <span class="sc">+</span></span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"EPA vs Offense WPA by Formation and Coverage Type"</span>,</span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Expected Points Added"</span>,</span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Offense Win Probability Added"</span></span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">7</span>),</span>
-<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">7</span>),</span>
-<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>)</span>
-<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a faceted scatter plot for all combinations</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(supp_clean, <span class="fu">aes</span>(<span class="at">x =</span> expected_points_added, <span class="at">y =</span> offense_win_probability_added)) <span class="sc">+</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="fl">0.8</span>, <span class="at">color =</span> <span class="st">"#2c7fb8"</span>) <span class="sc">+</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(team_coverage_type <span class="sc">~</span> offense_formation) <span class="sc">+</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"EPA vs Offense WPA by Formation and Coverage Type"</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Expected Points Added"</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Offense Win Probability Added"</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">7</span>),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">7</span>),</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Formation_Vs_Coverage_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Formation_Vs_Coverage_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="1152"></p>
 </figure>
 </div>
 </div>
 </div>
+<p>The above shows a grid of scatterplots for every possible offensive formation against every possible defensive coverage, and shows the Expected Points Added (EPA) as well as Offensive Win Probability Added (WPA). This gives us an idea of which offensive/defensive combinations occur most likely. We also see that every scatterplot has a relatively strong positive correlation, which aligns with our intuition that if a play has a positive amount of expected points added, it also gives the offensive team a higher win probability. However, it’s a bit difficult to tell any more specific information from this plot, so lets dive a bit deeper:</p>
 </section>
-<section id="formation-vs-coverage-epa-boxplots" class="level2" data-number="3.3">
-<h2 data-number="3.3" class="anchored" data-anchor-id="formation-vs-coverage-epa-boxplots"><span class="header-section-number">3.3</span> Formation vs Coverage EPA Boxplots</h2>
+<section id="formation-vs-coverage-epa-boxplots" class="level3" data-number="3.1.2">
+<h3 data-number="3.1.2" class="anchored" data-anchor-id="formation-vs-coverage-epa-boxplots"><span class="header-section-number">3.1.2</span> Formation vs Coverage EPA Boxplots</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a combined factor for formation-coverage pairs</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>supp_clean <span class="ot">&lt;-</span> supp_clean <span class="sc">|&gt;</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">formation_coverage =</span> <span class="fu">paste</span>(offense_formation, team_coverage_type, <span class="at">sep =</span> <span class="st">" vs "</span>))</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter to only include combinations with at least 100 plays</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>supp_filtered <span class="ot">&lt;-</span> supp_clean <span class="sc">|&gt;</span></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(formation_coverage) <span class="sc">|&gt;</span></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">n</span>() <span class="sc">&gt;=</span> <span class="dv">100</span>) <span class="sc">|&gt;</span></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate median EPA for each combination to order them</span></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>median_epa <span class="ot">&lt;-</span> supp_filtered <span class="sc">|&gt;</span></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(formation_coverage) <span class="sc">|&gt;</span></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">median_epa =</span> <span class="fu">median</span>(expected_points_added, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(median_epa)</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Reorder the factor based on median EPA</span></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>supp_filtered<span class="sc">$</span>formation_coverage <span class="ot">&lt;-</span> <span class="fu">factor</span>(supp_filtered<span class="sc">$</span>formation_coverage,</span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">levels =</span> median_epa<span class="sc">$</span>formation_coverage)</span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Create boxplots</span></span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(supp_filtered, <span class="fu">aes</span>(<span class="at">x =</span> formation_coverage, <span class="at">y =</span> expected_points_added)) <span class="sc">+</span></span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">fill =</span> <span class="st">"#2c7fb8"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>, <span class="at">outlier.alpha =</span> <span class="fl">0.3</span>, <span class="at">outlier.size =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Expected Points Added by Formation and Coverage Type"</span>,</span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Ordered by median EPA (left = worst for offense, right = best for offense)"</span>,</span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Formation vs Coverage Combination"</span>,</span>
-<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Expected Points Added"</span></span>
-<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">7</span>),</span>
-<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>),</span>
-<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>()</span>
-<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a combined factor for formation-coverage pairs</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>supp_clean <span class="ot">&lt;-</span> supp_clean <span class="sc">|&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">formation_coverage =</span> <span class="fu">paste</span>(offense_formation, team_coverage_type, <span class="at">sep =</span> <span class="st">" vs "</span>))</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter to only include combinations with at least 100 plays</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>supp_filtered <span class="ot">&lt;-</span> supp_clean <span class="sc">|&gt;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(formation_coverage) <span class="sc">|&gt;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">n</span>() <span class="sc">&gt;=</span> <span class="dv">100</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate median EPA for each combination to order them</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>median_epa <span class="ot">&lt;-</span> supp_filtered <span class="sc">|&gt;</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(formation_coverage) <span class="sc">|&gt;</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">median_epa =</span> <span class="fu">median</span>(expected_points_added, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(median_epa))</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Reorder the factor based on median EPA</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>supp_filtered<span class="sc">$</span>formation_coverage <span class="ot">&lt;-</span> <span class="fu">factor</span>(supp_filtered<span class="sc">$</span>formation_coverage,</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">levels =</span> median_epa<span class="sc">$</span>formation_coverage)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Create boxplots</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(supp_filtered, <span class="fu">aes</span>(<span class="at">x =</span> formation_coverage, <span class="at">y =</span> expected_points_added)) <span class="sc">+</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">fill =</span> <span class="st">"#2c7fb8"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>, <span class="at">outlier.alpha =</span> <span class="fl">0.3</span>, <span class="at">outlier.size =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Expected Points Added by Formation and Coverage Type"</span>,</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Ordered by median EPA (descending)"</span>,</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Formation vs Coverage Combination"</span>,</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Expected Points Added"</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">7</span>),</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>),</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>()</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Formation_Vs_Coverage_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Formation_Vs_Coverage_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="1344"></p>
 </figure>
 </div>
 </div>
 </div>
+<p>In the above, we have box plots of Offensive Formation/Defensive Coverage combos, sorted by descending mean EPA per play – we no longer need to looks at WPA, as we have concluded that EPA and WPA are strongly correlated and redundant. We have filtered to only show combinations that have occurred 100 times of more throughout the season.</p>
+<p>This chart makes it a bit easier for us to understand some key takeaways. Firstly, we see that the single most successful Offensive Formation/Defensive Coverage combination (where success is measure in Offensive EPA) is the Pistol Formation vs Cover 3 Zone. We also see that Shotgun vs Cover 2 Man is the worst combination for the offense to find itself in, which, on average, contributes a negative EPA.</p>
+<p>However, it is still a bit tricky to really make sense of how individual offensive formations perform against each other when seeing different devensive coverages, and which offensive formations are generally most effective, regardless of defensive formation. To address this, we can facet the box plots by offensive formation and look a little closer:</p>
 </section>
-<section id="faceted-boxplots-by-offensive-formation" class="level2" data-number="3.4">
-<h2 data-number="3.4" class="anchored" data-anchor-id="faceted-boxplots-by-offensive-formation"><span class="header-section-number">3.4</span> Faceted Boxplots by Offensive Formation</h2>
+<section id="faceted-boxplots-by-offensive-formation" class="level3" data-number="3.1.3">
+<h3 data-number="3.1.3" class="anchored" data-anchor-id="faceted-boxplots-by-offensive-formation"><span class="header-section-number">3.1.3</span> Faceted Boxplots by Offensive Formation</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a combined factor for formation-coverage pairs</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>supp_clean <span class="ot">&lt;-</span> supp_clean <span class="sc">|&gt;</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">formation_coverage =</span> <span class="fu">paste</span>(offense_formation, team_coverage_type, <span class="at">sep =</span> <span class="st">" vs "</span>))</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter to only include combinations with at least 100 plays</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>supp_filtered <span class="ot">&lt;-</span> supp_clean <span class="sc">|&gt;</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(formation_coverage) <span class="sc">|&gt;</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">n</span>() <span class="sc">&gt;=</span> <span class="dv">100</span>) <span class="sc">|&gt;</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Split data by offensive formation</span></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>formation_list <span class="ot">&lt;-</span> <span class="fu">split</span>(supp_filtered, supp_filtered<span class="sc">$</span>offense_formation)</span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Process each formation subtable separately</span></span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>formation_list_processed <span class="ot">&lt;-</span> <span class="fu">lapply</span>(formation_list, <span class="cf">function</span>(formation_df) {</span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>  formation_name <span class="ot">&lt;-</span> <span class="fu">unique</span>(formation_df<span class="sc">$</span>offense_formation)</span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate median EPA for each coverage type within this formation</span></span>
-<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>  formation_df <span class="ot">&lt;-</span> formation_df <span class="sc">|&gt;</span></span>
-<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(team_coverage_type) <span class="sc">|&gt;</span></span>
-<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">median_epa =</span> <span class="fu">median</span>(expected_points_added, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ungroup</span>()</span>
-<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create ordered factor for coverage type based on median EPA</span></span>
-<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Use concatenated string to make unique factor levels per formation</span></span>
-<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>  coverage_order <span class="ot">&lt;-</span> formation_df <span class="sc">|&gt;</span></span>
-<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(team_coverage_type) <span class="sc">|&gt;</span></span>
-<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">median_epa =</span> <span class="fu">first</span>(median_epa)) <span class="sc">|&gt;</span></span>
-<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arrange</span>(median_epa) <span class="sc">|&gt;</span></span>
-<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">coverage_concat =</span> <span class="fu">paste</span>(team_coverage_type, formation_name, <span class="at">sep =</span> <span class="st">"___"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(coverage_concat)</span>
-<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create concatenated coverage identifier</span></span>
-<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>  formation_df<span class="sc">$</span>coverage_concat <span class="ot">&lt;-</span> <span class="fu">paste</span>(formation_df<span class="sc">$</span>team_coverage_type,</span>
-<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>                                        formation_name,</span>
-<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">sep =</span> <span class="st">"___"</span>)</span>
-<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Set factor levels with formation-specific ordering</span></span>
-<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>  formation_df<span class="sc">$</span>coverage_ordered <span class="ot">&lt;-</span> <span class="fu">factor</span>(formation_df<span class="sc">$</span>coverage_concat,</span>
-<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">levels =</span> coverage_order)</span>
-<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(formation_df)</span>
-<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine all formation subtables back together</span></span>
-<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a>supp_filtered_ordered <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(formation_list_processed)</span>
-<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a labeller function to strip the formation suffix from labels</span></span>
-<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a>strip_formation <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
-<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gsub</span>(<span class="st">"___.*$"</span>, <span class="st">""</span>, x)</span>
-<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a><span class="co"># Create faceted boxplots</span></span>
-<span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(supp_filtered_ordered, <span class="fu">aes</span>(<span class="at">x =</span> coverage_ordered, <span class="at">y =</span> expected_points_added)) <span class="sc">+</span></span>
-<span id="cb14-55"><a href="#cb14-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">fill =</span> <span class="st">"#2c7fb8"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>, <span class="at">outlier.alpha =</span> <span class="fl">0.3</span>, <span class="at">outlier.size =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb14-56"><a href="#cb14-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb14-57"><a href="#cb14-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> offense_formation, <span class="at">scales =</span> <span class="st">"free_x"</span>) <span class="sc">+</span></span>
-<span id="cb14-58"><a href="#cb14-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_discrete</span>(<span class="at">labels =</span> strip_formation) <span class="sc">+</span></span>
-<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Expected Points Added by Coverage Type, Faceted by Offensive Formation"</span>,</span>
-<span id="cb14-61"><a href="#cb14-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Only showing formation-coverage combinations with 100+ plays"</span>,</span>
-<span id="cb14-62"><a href="#cb14-62" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Defensive Coverage Type"</span>,</span>
-<span id="cb14-63"><a href="#cb14-63" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Expected Points Added"</span></span>
-<span id="cb14-64"><a href="#cb14-64" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb14-65"><a href="#cb14-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb14-66"><a href="#cb14-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb14-67"><a href="#cb14-67" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">8</span>),</span>
-<span id="cb14-68"><a href="#cb14-68" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>),</span>
-<span id="cb14-69"><a href="#cb14-69" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
-<span id="cb14-70"><a href="#cb14-70" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>()</span>
-<span id="cb14-71"><a href="#cb14-71" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a combined factor for formation-coverage pairs</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>supp_clean <span class="ot">&lt;-</span> supp_clean <span class="sc">|&gt;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">formation_coverage =</span> <span class="fu">paste</span>(offense_formation, team_coverage_type, <span class="at">sep =</span> <span class="st">" vs "</span>))</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter to only include combinations with at least 100 plays</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>supp_filtered <span class="ot">&lt;-</span> supp_clean <span class="sc">|&gt;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(formation_coverage) <span class="sc">|&gt;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">n</span>() <span class="sc">&gt;=</span> <span class="dv">100</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Split data by offensive formation</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>formation_list <span class="ot">&lt;-</span> <span class="fu">split</span>(supp_filtered, supp_filtered<span class="sc">$</span>offense_formation)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Process each formation subtable separately</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>formation_list_processed <span class="ot">&lt;-</span> <span class="fu">lapply</span>(formation_list, <span class="cf">function</span>(formation_df) {</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  formation_name <span class="ot">&lt;-</span> <span class="fu">unique</span>(formation_df<span class="sc">$</span>offense_formation)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate median EPA for each coverage type within this formation</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  formation_df <span class="ot">&lt;-</span> formation_df <span class="sc">|&gt;</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(team_coverage_type) <span class="sc">|&gt;</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">median_epa =</span> <span class="fu">median</span>(expected_points_added, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ungroup</span>()</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create ordered factor for coverage type based on median EPA</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Use concatenated string to make unique factor levels per formation</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  coverage_order <span class="ot">&lt;-</span> formation_df <span class="sc">|&gt;</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(team_coverage_type) <span class="sc">|&gt;</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">median_epa =</span> <span class="fu">first</span>(median_epa)) <span class="sc">|&gt;</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arrange</span>(<span class="fu">desc</span>(median_epa)) <span class="sc">|&gt;</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">coverage_concat =</span> <span class="fu">paste</span>(team_coverage_type, formation_name, <span class="at">sep =</span> <span class="st">"___"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(coverage_concat)</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create concatenated coverage identifier</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>  formation_df<span class="sc">$</span>coverage_concat <span class="ot">&lt;-</span> <span class="fu">paste</span>(formation_df<span class="sc">$</span>team_coverage_type,</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>                                        formation_name,</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">sep =</span> <span class="st">"___"</span>)</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Set factor levels with formation-specific ordering</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>  formation_df<span class="sc">$</span>coverage_ordered <span class="ot">&lt;-</span> <span class="fu">factor</span>(formation_df<span class="sc">$</span>coverage_concat,</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">levels =</span> coverage_order)</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(formation_df)</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine all formation subtables back together</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>supp_filtered_ordered <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(formation_list_processed)</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a labeller function to strip the formation suffix from labels</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>strip_formation <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gsub</span>(<span class="st">"___.*$"</span>, <span class="st">""</span>, x)</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a><span class="co"># Create faceted boxplots</span></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(supp_filtered_ordered, <span class="fu">aes</span>(<span class="at">x =</span> coverage_ordered, <span class="at">y =</span> expected_points_added)) <span class="sc">+</span></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">fill =</span> <span class="st">"#2c7fb8"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>, <span class="at">outlier.shape =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> offense_formation, <span class="at">scales =</span> <span class="st">"free_x"</span>) <span class="sc">+</span></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_discrete</span>(<span class="at">labels =</span> strip_formation) <span class="sc">+</span></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">5</span>, <span class="dv">5</span>)) <span class="sc">+</span></span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Expected Points Added by Coverage Type, Faceted by Offensive Formation"</span>,</span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Only showing formation-coverage combinations with 100+ plays | Y-axis limited to -5 to +5"</span>,</span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Defensive Coverage Type"</span>,</span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Expected Points Added"</span></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">8</span>),</span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>),</span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>()</span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Formation_Vs_Coverage_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Formation_Vs_Coverage_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="1152"></p>
 </figure>
 </div>
 </div>
 </div>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">head</span>(supp_filtered[<span class="st">'formation_coverage'</span>], <span class="dv">10</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 10 × 1
-   formation_coverage        
-   &lt;chr&gt;                     
- 1 EMPTY vs COVER_2_ZONE     
- 2 SINGLEBACK vs COVER_6_ZONE
- 3 SHOTGUN vs COVER_2_ZONE   
- 4 SHOTGUN vs COVER_2_ZONE   
- 5 SHOTGUN vs COVER_4_ZONE   
- 6 SHOTGUN vs COVER_2_ZONE   
- 7 SHOTGUN vs COVER_1_MAN    
- 8 SINGLEBACK vs COVER_3_ZONE
- 9 SHOTGUN vs COVER_1_MAN    
-10 SHOTGUN vs COVER_2_ZONE   </code></pre>
-</div>
-</div>
+<p>From the above, we can see a few interesting trends.</p>
+<p>One that immediately jumps out is that the Singleback formation is the only offensive formation where the average EPA is positive against every common defensive coverage it faces (with the exception of I Formation, which only has enough data against one formation).</p>
+<p>Another thing we notice here is that Cover 3 Zone is a top 2 formation in terms of EPA allowed against every offensive formation we see here, indicating that no matter which formation the offense comes out in, they would be happy to see themselves playing against a Cover 3 Zone formation.</p>
+<p>Lastly, we can see that the Pistol formation seems to be a bit higher risk, higher reward than our other formations, with the top overall formation/coverage combination (when going against Cover 3 Zone), but also one of the lowest performing combinations (when going against Cover 1 Man).</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -982,8 +897,8 @@ Attaching package: 'dplyr'</code></pre>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./more_results.html" class="pagination-link" aria-label="more_results">
-        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">more_results</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./more_results.html" class="pagination-link" aria-label="Results (continued)">
+        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Results (continued)</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

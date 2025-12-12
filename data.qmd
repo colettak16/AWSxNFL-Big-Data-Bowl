@@ -17,6 +17,10 @@ This is broken down into 18 csv files (23 columns by ~30k rows each) – one for
 
 - Output
 This is also broken down into 18 csv files (6 columns by ~30k rows each), with each file again representing one week of the season. The data in this file contains the play ID, the player ID, and their final position on the field at the time the play ends.
+
+
+## Missing value analysis
+
 ```{r}
 #install.packages("httpgd")
 #install.packages("ggplot2")
@@ -27,9 +31,6 @@ library(ggplot2)
 library(tidyverse)
 library(ggplot2)
 
-```
-
-```{r}
 in_week1 <- read.csv("data/train/input_2023_w01.csv")
 in_week2 <- read.csv("data/train/input_2023_w02.csv")
 in_week3 <- read.csv("data/train/input_2023_w03.csv")
@@ -50,9 +51,6 @@ in_week17 <- read.csv("data/train/input_2023_w17.csv")
 in_week18 <- read.csv("data/train/input_2023_w18.csv")
 
 
-```
-
-```{r}
 out_week1 <- read.csv("data/train/output_2023_w01.csv")
 out_week2 <- read.csv("data/train/output_2023_w02.csv")
 out_week3 <- read.csv("data/train/output_2023_w03.csv")
@@ -74,11 +72,7 @@ out_week18 <- read.csv("data/train/output_2023_w18.csv")
 
 supplementary <- read.csv("data/supplementary_data.csv")
 
-```
 
-
-## Missing value analysis
-```{r}
 all_dfs <- list(file1 = in_week1, 
                 file2 = in_week2, 
                 file3 = in_week3, 
@@ -136,10 +130,7 @@ cols_with_na <- function(df) {
   na_counts <- colSums(is.na(df))
   na_counts[na_counts > 0]
 }
-cols_with_na(supplementary)
-```
 
-```{r}
 # Histogram of NA counts per column for the `supplementary` dataset
 # Get NA counts for each column in supplementary dataset
 na_by_col <- data.frame(
@@ -148,9 +139,10 @@ na_by_col <- data.frame(
 )
 
 # Show which columns have the most NAs
-na_by_col %>% 
+na_by_col_summary <- na_by_col %>%
   filter(na_count > 0) %>%
   arrange(desc(na_count))
+
 # Bar chart of NA counts by column (only showing columns with NAs)
 na_by_col %>%
   filter(na_count > 0) %>%
@@ -203,4 +195,9 @@ ggplot(na_by_col_capped, aes(x = reorder(column, -na_count), y = na_count_displa
 
 
 These graphs show that the vast majority of N/A data comes from the penalty_yards column, which is to be exapected, as most plays in the data set did not result in any penalties, and therefore would not have any penalty yards associated with them.
+
+As a table:
+```{r}
+print(na_by_col_summary, row.names = FALSE)
+```
 

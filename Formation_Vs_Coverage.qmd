@@ -1,14 +1,16 @@
 # Results
 
+## Offensive Formation vs Defensive Coverage Effectivity
+
+One thing we'd like to use this data to understand is which types of situations are advantageous for offenses when it comes to playcalling. Can we find out which offensive formations are most likely to be successful, especially if we know the opposing team has a tendency to call a specific defensive coverage?
+
 ```{r}
 library(ggplot2)
 library(dplyr)
 library(reticulate)
+library(tidyr)
 
-```
 
-
-```{r}
 in_week1 <- read.csv("data/train/input_2023_w01.csv")
 in_week2 <- read.csv("data/train/input_2023_w02.csv")
 in_week3 <- read.csv("data/train/input_2023_w03.csv")
@@ -29,9 +31,6 @@ in_week17 <- read.csv("data/train/input_2023_w17.csv")
 in_week18 <- read.csv("data/train/input_2023_w18.csv")
 
 
-```
-
-```{r}
 out_week1 <- read.csv("data/train/output_2023_w01.csv")
 out_week2 <- read.csv("data/train/output_2023_w02.csv")
 out_week3 <- read.csv("data/train/output_2023_w03.csv")
@@ -53,11 +52,6 @@ out_week18 <- read.csv("data/train/output_2023_w18.csv")
 
 supplementary <- read.csv("data/supplementary_data.csv")
 
-```
-
-## Adding Offense/Defense Win Probability Columns
-
-```{r}
 # Create offense_win_probability_added and defense_win_probability_added columns
 # Logic: If possession_team == home_team, offense gets home WPA, defense gets visitor WPA
 #        If possession_team == visitor_team, offense gets visitor WPA, defense gets home WPA
@@ -76,20 +70,6 @@ supplementary <- supplementary |>
     )
   )
 
-# Verify the new columns
-head(supplementary |>
-  select(possession_team, home_team_abbr, visitor_team_abbr,
-         home_team_win_probability_added, visitor_team_win_probility_added,
-         offense_win_probability_added, defense_win_probability_added), 10)
-```
-
-## Formation vs Coverage Heatmaps
-
-```{r}
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-
 # Remove NA values for the variables we're plotting
 supp_clean <- supplementary |>
   filter(!is.na(offense_formation) &
@@ -100,6 +80,14 @@ supp_clean <- supplementary |>
 # Get all unique combinations of offense_formation and team_coverage_type
 formations <- unique(supp_clean$offense_formation)
 coverages <- unique(supp_clean$team_coverage_type)
+```
+
+
+### Scatterplot of each formation vs coverage combination and their respective EPA vs Win Probability Added
+
+The first thing we can do to answer this question is view every combination of offensive formation and defensive coverage and get a general sense of both the frequency with which each combination occurs, as well as how generally successful that combination tends to be.
+
+```{r fig.height=10, fig.width=12}
 
 # Create a faceted scatter plot for all combinations
 ggplot(supp_clean, aes(x = expected_points_added, y = offense_win_probability_added)) +
@@ -118,9 +106,12 @@ ggplot(supp_clean, aes(x = expected_points_added, y = offense_win_probability_ad
   )
 ```
 
-## Formation vs Coverage EPA Boxplots
+The above shows a grid of scatterplots for every possible offensive formation against every possible defensive coverage, and shows the Expected Points Added (EPA) as well as Offensive Win Probability Added (WPA). This gives us an idea of which offensive/defensive combinations occur most likely. We also see that every scatterplot has a relatively strong positive correlation, which aligns with our intuition that if a play has a positive amount of expected points added, it also gives the offensive team a higher win probability. However, it's a bit difficult to tell any more specific information from this plot, so lets dive a bit deeper:
 
-```{r}
+
+### Formation vs Coverage EPA Boxplots
+
+```{r fig.height=8, fig.width=14}
 # Create a combined factor for formation-coverage pairs
 supp_clean <- supp_clean |>
   mutate(formation_coverage = paste(offense_formation, team_coverage_type, sep = " vs "))
@@ -135,7 +126,7 @@ supp_filtered <- supp_clean |>
 median_epa <- supp_filtered |>
   group_by(formation_coverage) |>
   summarise(median_epa = median(expected_points_added, na.rm = TRUE)) |>
-  arrange(median_epa)
+  arrange(desc(median_epa))
 
 # Reorder the factor based on median EPA
 supp_filtered$formation_coverage <- factor(supp_filtered$formation_coverage,
@@ -147,7 +138,7 @@ ggplot(supp_filtered, aes(x = formation_coverage, y = expected_points_added)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "red", linewidth = 0.5) +
   labs(
     title = "Expected Points Added by Formation and Coverage Type",
-    subtitle = "Ordered by median EPA (left = worst for offense, right = best for offense)",
+    subtitle = "Ordered by median EPA (descending)",
     x = "Formation vs Coverage Combination",
     y = "Expected Points Added"
   ) +
@@ -159,10 +150,16 @@ ggplot(supp_filtered, aes(x = formation_coverage, y = expected_points_added)) +
   )
 ```
 
+In the above, we have box plots of Offensive Formation/Defensive Coverage combos, sorted by descending mean EPA per play -- we no longer need to looks at WPA, as we have concluded that EPA and WPA are strongly correlated and redundant. We have filtered to only show combinations that have occurred 100 times of more throughout the season.
 
-## Faceted Boxplots by Offensive Formation
+This chart makes it a bit easier for us to understand some key takeaways. Firstly, we see that the single most successful Offensive Formation/Defensive Coverage combination (where success is measure in Offensive EPA) is the Pistol Formation vs Cover 3 Zone. We also see that Shotgun vs Cover 2 Man is the worst combination for the offense to find itself in, which, on average, contributes a negative EPA.
 
-```{r}
+However, it is still a bit tricky to really make sense of how individual offensive formations perform against each other when seeing different devensive coverages, and which offensive formations are generally most effective, regardless of defensive formation. To address this, we can facet the box plots by offensive formation and look a little closer:
+
+
+### Faceted Boxplots by Offensive Formation
+
+```{r fig.height=10, fig.width=12}
 # Create a combined factor for formation-coverage pairs
 supp_clean <- supp_clean |>
   mutate(formation_coverage = paste(offense_formation, team_coverage_type, sep = " vs "))
@@ -191,7 +188,7 @@ formation_list_processed <- lapply(formation_list, function(formation_df) {
   coverage_order <- formation_df |>
     group_by(team_coverage_type) |>
     summarise(median_epa = first(median_epa)) |>
-    arrange(median_epa) |>
+    arrange(desc(median_epa)) |>
     mutate(coverage_concat = paste(team_coverage_type, formation_name, sep = "___")) |>
     pull(coverage_concat)
 
@@ -217,13 +214,14 @@ strip_formation <- function(x) {
 
 # Create faceted boxplots
 ggplot(supp_filtered_ordered, aes(x = coverage_ordered, y = expected_points_added)) +
-  geom_boxplot(fill = "#2c7fb8", alpha = 0.7, outlier.alpha = 0.3, outlier.size = 0.5) +
+  geom_boxplot(fill = "#2c7fb8", alpha = 0.7, outlier.shape = NA) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "red", linewidth = 0.5) +
   facet_wrap(~ offense_formation, scales = "free_x") +
   scale_x_discrete(labels = strip_formation) +
+  scale_y_continuous(limits = c(-5, 5)) +
   labs(
     title = "Expected Points Added by Coverage Type, Faceted by Offensive Formation",
-    subtitle = "Only showing formation-coverage combinations with 100+ plays",
+    subtitle = "Only showing formation-coverage combinations with 100+ plays | Y-axis limited to -5 to +5",
     x = "Defensive Coverage Type",
     y = "Expected Points Added"
   ) +
@@ -237,7 +235,10 @@ ggplot(supp_filtered_ordered, aes(x = coverage_ordered, y = expected_points_adde
 
 ```
 
-```{r}
-print(head(supp_filtered['formation_coverage'], 10))
+From the above, we can see a few interesting trends. 
 
-```
+One that immediately jumps out is that the Singleback formation is the only offensive formation where the average EPA is positive against every common defensive coverage it faces (with the exception of I Formation, which only has enough data against one formation).
+
+Another thing we notice here is that Cover 3 Zone is a top 2 formation in terms of EPA allowed against every offensive formation we see here, indicating that no matter which formation the offense comes out in, they would be happy to see themselves playing against a Cover 3 Zone formation.
+
+Lastly, we can see that the Pistol formation seems to be a bit higher risk, higher reward than our other formations, with the top overall formation/coverage combination (when going against Cover 3 Zone), but also one of the lowest performing combinations (when going against Cover 1 Man).

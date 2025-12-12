@@ -169,13 +169,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./more_results.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">more_results</span></span></a>
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Results (continued)</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./ADOT.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Reload supplementary data fresh to ensure we have all data</span></span></a>
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Depth of Target by State and Stage of Season (Outdoor Stadiums Only)</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -231,6 +231,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p>Input This is broken down into 18 csv files (23 columns by ~30k rows each) – one for each week of the season. Within each file, we have groups of rows for every player that participated in a game that week. For every player, there are multiple rows for every play they participated in, corresponding to the number of frames within that play.</p></li>
 <li><p>Output This is also broken down into 18 csv files (6 columns by ~30k rows each), with each file again representing one week of the season. The data in this file contains the play ID, the player ID, and their final position on the field at the time the play ends.</p></li>
 </ul>
+</section>
+<section id="missing-value-analysis" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="missing-value-analysis"><span class="header-section-number">2.2</span> Missing value analysis</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -238,522 +241,205 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages("ggplot2")</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages("dplyr")</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'dplyr'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:stats':
-
-    filter, lag</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:base':
-
-    intersect, setdiff, setequal, union</code></pre>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'ggplot2' was built under R version 4.5.2</code></pre>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#library(httpgd)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-</div>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>in_week1 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w01.csv"</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>in_week2 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w02.csv"</span>)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>in_week3 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w03.csv"</span>)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>in_week4 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w04.csv"</span>)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>in_week5 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w05.csv"</span>)</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>in_week6 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w06.csv"</span>)</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>in_week7 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w07.csv"</span>)</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>in_week8 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w08.csv"</span>)</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>in_week9 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w09.csv"</span>)</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>in_week10 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w10.csv"</span>)</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>in_week11 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w11.csv"</span>)</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>in_week12 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w12.csv"</span>)</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>in_week13 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w13.csv"</span>)</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>in_week14 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w14.csv"</span>)</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>in_week15 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w15.csv"</span>)</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>in_week16 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w16.csv"</span>)</span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>in_week17 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w17.csv"</span>)</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>in_week18 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w18.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-</div>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>out_week1 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w01.csv"</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>out_week2 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w02.csv"</span>)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>out_week3 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w03.csv"</span>)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>out_week4 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w04.csv"</span>)</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>out_week5 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w05.csv"</span>)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>out_week6 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w06.csv"</span>)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>out_week7 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w07.csv"</span>)</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>out_week8 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w08.csv"</span>)</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>out_week9 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w09.csv"</span>)</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>out_week10 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w10.csv"</span>)</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>out_week11 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w11.csv"</span>)</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>out_week12 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w12.csv"</span>)</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>out_week13 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w13.csv"</span>)</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>out_week14 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w14.csv"</span>)</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>out_week15 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w15.csv"</span>)</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>out_week16 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w16.csv"</span>)</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>out_week17 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w17.csv"</span>)</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>out_week18 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w18.csv"</span>)</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>supplementary <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/supplementary_data.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-</div>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(supplementary, <span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>      game_id season week  game_date game_time_eastern home_team_abbr
-1  2023090700   2023    1 09/07/2023          20:20:00             KC
-2  2023090700   2023    1 09/07/2023          20:20:00             KC
-3  2023090700   2023    1 09/07/2023          20:20:00             KC
-4  2023090700   2023    1 09/07/2023          20:20:00             KC
-5  2023090700   2023    1 09/07/2023          20:20:00             KC
-6  2023090700   2023    1 09/07/2023          20:20:00             KC
-7  2023090700   2023    1 09/07/2023          20:20:00             KC
-8  2023090700   2023    1 09/07/2023          20:20:00             KC
-9  2023090700   2023    1 09/07/2023          20:20:00             KC
-10 2023090700   2023    1 09/07/2023          20:20:00             KC
-   visitor_team_abbr play_id
-1                DET    3461
-2                DET     461
-3                DET    1940
-4                DET    1711
-5                DET    1588
-6                DET     101
-7                DET    3566
-8                DET     902
-9                DET    1069
-10               DET    2261
-                                                                                                        play_description
-1                   (10:46) (Shotgun) J.Goff pass deep left to J.Reynolds to DET 41 for 18 yards (J.Williams) [L.Sneed].
-2                                       (7:30) J.Goff pass short right to J.Reynolds to KC 45 for 21 yards (T.McDuffie).
-3                                                          (:09) (Shotgun) J.Goff pass incomplete deep right to M.Jones.
-4  (:45) (No Huddle, Shotgun) P.Mahomes pass deep left to Ju.Watson pushed ob at DET 4 for 26 yards (C.Gardner-Johnson).
-5                                                       (1:54) (Shotgun) P.Mahomes pass incomplete deep left to R.James.
-6                                                     (14:25) (Shotgun) J.Goff pass incomplete deep right to J.Reynolds.
-7                                            (8:31) J.Goff pass short right to J.Reynolds to KC 14 for 33 yards (W.Gay).
-8                                                      (13:54) (Shotgun) P.Mahomes pass incomplete short left to R.Rice.
-9                                  (11:50) J.Goff pass short middle to B.Wright to DET 34 for 9 yards (N.Bolton, W.Gay).
-10              (12:31) (Shotgun) J.Goff pass short left to S.LaPorta to DET 11 for 4 yards (J.Reid) [F.Anudike-Uzomah].
-   quarter game_clock down yards_to_go possession_team defensive_team
-1        4      10:46    3          12             DET             KC
-2        1      07:30    1          10             DET             KC
-3        2      00:09    2          10             DET             KC
-4        2      00:45    1          10              KC            DET
-5        2      01:54    1          10              KC            DET
-6        1      14:25    3           3             DET             KC
-7        4      08:31    1          10             DET             KC
-8        2      13:54    1          10              KC            DET
-9        2      11:50    1          10             DET             KC
-10       3      12:31    3          10             DET             KC
-   yardline_side yardline_number pre_snap_home_score pre_snap_visitor_score
-1            DET              23                  20                     14
-2            DET              34                   0                      0
-3            DET              42                  14                      7
-4            DET              30                   7                      7
-5             KC              43                   7                      7
-6            DET              32                   0                      0
-7             KC              47                  20                     14
-8            DET              25                   0                      7
-9            DET              25                   7                      7
-10           DET               7                  14                      7
-   play_nullified_by_penalty pass_result pass_length offense_formation
-1                          N           C          18             EMPTY
-2                          N           C          13        SINGLEBACK
-3                          N           I          18           SHOTGUN
-4                          N           C          23           SHOTGUN
-5                          N           I          38           SHOTGUN
-6                          N           I          22           SHOTGUN
-7                          N           C          15            I_FORM
-8                          N           I           4           SHOTGUN
-9                          N           C           5        SINGLEBACK
-10                         N           C           3           SHOTGUN
-   receiver_alignment route_of_targeted_receiver play_action dropback_type
-1                 3x2                         IN       FALSE   TRADITIONAL
-2                 3x1                       POST        TRUE   TRADITIONAL
-3                 3x1                        OUT       FALSE   TRADITIONAL
-4                 3x1                     CORNER       FALSE   TRADITIONAL
-5                 2x2                       POST       FALSE   TRADITIONAL
-6                 2x2                     CORNER       FALSE   TRADITIONAL
-7                 2x1                      HITCH        TRUE   TRADITIONAL
-8                 3x1                      HITCH       FALSE   TRADITIONAL
-9                 3x1                         IN       FALSE   TRADITIONAL
-10                3x1                      CROSS       FALSE   TRADITIONAL
-   dropback_distance pass_location_type defenders_in_the_box
-1               5.30         INSIDE_BOX                    6
-2               4.72         INSIDE_BOX                    7
-3               4.44         INSIDE_BOX                    6
-4               5.36         INSIDE_BOX                    5
-5               4.59         INSIDE_BOX                    6
-6               2.13         INSIDE_BOX                    6
-7               7.37         INSIDE_BOX                    7
-8               2.85         INSIDE_BOX                    6
-9               4.89         INSIDE_BOX                    7
-10              4.76         INSIDE_BOX                    5
-   team_coverage_man_zone team_coverage_type penalty_yards
-1           ZONE_COVERAGE       COVER_2_ZONE            NA
-2           ZONE_COVERAGE       COVER_6_ZONE            NA
-3           ZONE_COVERAGE       COVER_2_ZONE            NA
-4           ZONE_COVERAGE       COVER_2_ZONE            NA
-5           ZONE_COVERAGE       COVER_4_ZONE            NA
-6           ZONE_COVERAGE       COVER_2_ZONE            NA
-7            MAN_COVERAGE        COVER_1_MAN            NA
-8            MAN_COVERAGE        COVER_1_MAN            NA
-9           ZONE_COVERAGE       COVER_3_ZONE            NA
-10           MAN_COVERAGE        COVER_1_MAN            NA
-   pre_penalty_yards_gained yards_gained expected_points expected_points_added
-1                        18           18      -0.6644157            2.94584728
-2                        21           21       1.9261315            1.34563263
-3                         0            0       0.2818909           -0.08196413
-4                        26           26       3.4523520            2.34294713
-5                         0            0       1.9215250           -0.32403465
-6                         0            0       0.9270205           -2.14544250
-7                        33           33       2.9745472            2.12227009
-8                         0            0       4.4057860           -0.40766987
-9                         9            9       1.3470738            0.56685446
-10                        4            4      -1.2908946           -1.33424739
-   pre_snap_home_team_win_probability pre_snap_visitor_team_win_probability
-1                           0.8342963                             0.1657037
-2                           0.5446184                             0.4553816
-3                           0.7719937                             0.2280063
-4                           0.6631870                             0.3368130
-5                           0.6150354                             0.3849646
-6                           0.5904257                             0.4095743
-7                           0.7392879                             0.2607121
-8                           0.4908957                             0.5091043
-9                           0.5542221                             0.4457779
-10                          0.8331860                             0.1668140
-   home_team_win_probability_added visitor_team_win_probility_added
-1                    -8.114887e-02                     8.114887e-02
-2                    -2.941547e-02                     2.941547e-02
-3                     7.912815e-04                    -7.912815e-04
-4                     4.184281e-02                    -4.184281e-02
-5                     6.088614e-05                    -6.088614e-05
-6                     4.971957e-02                    -4.971957e-02
-7                    -9.945386e-02                     9.945386e-02
-8                    -1.120628e-02                     1.120628e-02
-9                    -1.698421e-02                     1.698421e-02
-10                    2.059924e-02                    -2.059924e-02</code></pre>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(in_week1, <span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>      game_id play_id player_to_predict nfl_id frame_id play_direction
-1  2023090700     101             False  54527        1          right
-2  2023090700     101             False  54527        2          right
-3  2023090700     101             False  54527        3          right
-4  2023090700     101             False  54527        4          right
-5  2023090700     101             False  54527        5          right
-6  2023090700     101             False  54527        6          right
-7  2023090700     101             False  54527        7          right
-8  2023090700     101             False  54527        8          right
-9  2023090700     101             False  54527        9          right
-10 2023090700     101             False  54527       10          right
-   absolute_yardline_number player_name player_height player_weight
-1                        42  Bryan Cook           6-1           210
-2                        42  Bryan Cook           6-1           210
-3                        42  Bryan Cook           6-1           210
-4                        42  Bryan Cook           6-1           210
-5                        42  Bryan Cook           6-1           210
-6                        42  Bryan Cook           6-1           210
-7                        42  Bryan Cook           6-1           210
-8                        42  Bryan Cook           6-1           210
-9                        42  Bryan Cook           6-1           210
-10                       42  Bryan Cook           6-1           210
-   player_birth_date player_position player_side        player_role     x     y
-1         1999-09-07              FS     Defense Defensive Coverage 52.33 36.94
-2         1999-09-07              FS     Defense Defensive Coverage 52.33 36.94
-3         1999-09-07              FS     Defense Defensive Coverage 52.33 36.93
-4         1999-09-07              FS     Defense Defensive Coverage 52.35 36.92
-5         1999-09-07              FS     Defense Defensive Coverage 52.37 36.90
-6         1999-09-07              FS     Defense Defensive Coverage 52.44 36.88
-7         1999-09-07              FS     Defense Defensive Coverage 52.51 36.86
-8         1999-09-07              FS     Defense Defensive Coverage 52.60 36.85
-9         1999-09-07              FS     Defense Defensive Coverage 52.71 36.83
-10        1999-09-07              FS     Defense Defensive Coverage 52.84 36.81
-      s    a    dir      o num_frames_output ball_land_x ball_land_y
-1  0.09 0.39 322.40 238.24                21       63.26       -0.22
-2  0.04 0.61 200.89 236.05                21       63.26       -0.22
-3  0.12 0.73 147.55 240.60                21       63.26       -0.22
-4  0.23 0.81 131.40 244.25                21       63.26       -0.22
-5  0.35 0.82 123.26 244.25                21       63.26       -0.22
-6  0.60 0.87 106.89 247.67                21       63.26       -0.22
-7  0.76 0.64 103.87 247.67                21       63.26       -0.22
-8  0.91 0.92 100.97 246.69                21       63.26       -0.22
-9  1.10 1.31  98.15 247.39                21       63.26       -0.22
-10 1.32 1.71  96.73 243.01                21       63.26       -0.22</code></pre>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(out_week1, <span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>      game_id play_id nfl_id frame_id     x     y
-1  2023090700     101  46137        1 56.22 17.28
-2  2023090700     101  46137        2 56.63 16.88
-3  2023090700     101  46137        3 57.06 16.46
-4  2023090700     101  46137        4 57.48 16.02
-5  2023090700     101  46137        5 57.91 15.56
-6  2023090700     101  46137        6 58.34 15.10
-7  2023090700     101  46137        7 58.75 14.57
-8  2023090700     101  46137        8 59.14 14.01
-9  2023090700     101  46137        9 59.51 13.41
-10 2023090700     101  46137       10 59.86 12.80</code></pre>
-</div>
-</div>
-</section>
-<section id="missing-value-analysis" class="level2" data-number="2.2">
-<h2 data-number="2.2" class="anchored" data-anchor-id="missing-value-analysis"><span class="header-section-number">2.2</span> Missing value analysis</h2>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>all_dfs <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">file1 =</span> in_week1, </span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">file2 =</span> in_week2, </span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">file3 =</span> in_week3, </span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">file4 =</span> in_week4, </span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">file5 =</span> in_week5, </span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>                <span class="at">file6 =</span> in_week6, </span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>                <span class="at">file7 =</span> in_week7, </span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">file8 =</span> in_week8, </span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>                <span class="at">file9 =</span> in_week9, </span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>                <span class="at">file10 =</span> in_week10, </span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>                <span class="at">file11 =</span> in_week11, </span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>                <span class="at">file12 =</span> in_week12, </span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>                <span class="at">file13 =</span> in_week13, </span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>                <span class="at">file14 =</span> in_week14, </span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>                <span class="at">file15 =</span> in_week15, </span>
-<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>                <span class="at">file16 =</span> in_week16, </span>
-<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>                <span class="at">file17 =</span> in_week17, </span>
-<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>                <span class="at">file18 =</span> in_week18, </span>
-<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>                <span class="at">file19 =</span> out_week1, </span>
-<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>                <span class="at">file20 =</span> out_week2, </span>
-<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>                <span class="at">file21 =</span> out_week3, </span>
-<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>                <span class="at">file22 =</span> out_week4, </span>
-<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>                <span class="at">file22 =</span> out_week5, </span>
-<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>                <span class="at">file24 =</span> out_week6, </span>
-<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>                <span class="at">file25 =</span> out_week7, </span>
-<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>                <span class="at">file26 =</span> out_week8, </span>
-<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>                <span class="at">file27 =</span> out_week9, </span>
-<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>                <span class="at">file28 =</span> out_week10, </span>
-<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>                <span class="at">file29 =</span> out_week11, </span>
-<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>                <span class="at">file30 =</span> out_week12, </span>
-<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>                <span class="at">file31 =</span> out_week13, </span>
-<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>                <span class="at">file32 =</span> out_week14, </span>
-<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>                <span class="at">file33 =</span> out_week15, </span>
-<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>                <span class="at">file34 =</span> out_week16, </span>
-<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>                <span class="at">file35 =</span> out_week17, </span>
-<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>                <span class="at">file36 =</span> out_week18, </span>
-<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>                <span class="at">file37 =</span> supplementary</span>
-<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>                )</span>
-<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-✔ forcats   1.0.1     ✔ stringr   1.5.2
-✔ lubridate 1.9.4     ✔ tibble    3.3.0
-✔ purrr     1.1.0     ✔ tidyr     1.3.1
-✔ readr     2.1.5     
-── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-✖ dplyr::filter() masks stats::filter()
-✖ dplyr::lag()    masks stats::lag()
-ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>na_summary <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(<span class="fu">names</span>(all_dfs), <span class="cf">function</span>(name) {</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> all_dfs[[name]]</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  na_counts <span class="ot">&lt;-</span> <span class="fu">colSums</span>(<span class="fu">is.na</span>(df))</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  total_na <span class="ot">&lt;-</span> <span class="fu">sum</span>(na_counts)</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">dataframe =</span> name,</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_na =</span> total_na,</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns_with_na =</span> <span class="fu">paste</span>(<span class="fu">names</span>(na_counts[na_counts <span class="sc">&gt;</span> <span class="dv">0</span>]), <span class="at">collapse =</span> <span class="st">", "</span>)</span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>}) <span class="sc">%&gt;%</span> </span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(total_na <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
-<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>na_summary</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 1 × 3
-  dataframe total_na columns_with_na                                            
-  &lt;chr&gt;        &lt;dbl&gt; &lt;chr&gt;                                                      
-1 file37       17837 yardline_side, route_of_targeted_receiver, play_action, dr…</code></pre>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="do">## All N/A values come from the supplementary data set -- most come the "penalty_yards" column</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>supp_na_counts <span class="ot">&lt;-</span> <span class="fu">colSums</span>(<span class="fu">is.na</span>(supplementary))</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>no_pen_na <span class="ot">&lt;-</span> <span class="fu">is.na</span>(supplementary[<span class="st">'penalty_yards'</span>])</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(no_pen_na)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 17549</code></pre>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(supp_na_counts)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 17837</code></pre>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Show N/A values by column</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>cols_with_na <span class="ot">&lt;-</span> <span class="cf">function</span>(df) {</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  na_counts <span class="ot">&lt;-</span> <span class="fu">colSums</span>(<span class="fu">is.na</span>(df))</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  na_counts[na_counts <span class="sc">&gt;</span> <span class="dv">0</span>]</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">cols_with_na</span>(supplementary)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>             yardline_side route_of_targeted_receiver 
-                       251                          4 
-               play_action              dropback_type 
-                         1                          1 
-         dropback_distance         pass_location_type 
-                         1                         20 
-    team_coverage_man_zone         team_coverage_type 
-                         5                          5 
-             penalty_yards 
-                     17549 </code></pre>
-</div>
-</div>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Histogram of NA counts per column for the `supplementary` dataset</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Get NA counts for each column in supplementary dataset</span></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>na_by_col <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">column =</span> <span class="fu">names</span>(supplementary),</span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">na_count =</span> <span class="fu">colSums</span>(<span class="fu">is.na</span>(supplementary))</span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Create histogram of NA counts</span></span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(na_by_col, <span class="fu">aes</span>(<span class="at">x =</span> na_count)) <span class="sc">+</span></span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">20</span>, <span class="at">fill =</span> <span class="st">"#2c7fb8"</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Distribution of NA Counts Across Columns"</span>,</span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Number of NA Values"</span>,</span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Number of Columns"</span></span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>in_week1 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w01.csv"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>in_week2 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w02.csv"</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>in_week3 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w03.csv"</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>in_week4 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w04.csv"</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>in_week5 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w05.csv"</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>in_week6 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w06.csv"</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>in_week7 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w07.csv"</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>in_week8 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w08.csv"</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>in_week9 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w09.csv"</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>in_week10 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w10.csv"</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>in_week11 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w11.csv"</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>in_week12 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w12.csv"</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>in_week13 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w13.csv"</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>in_week14 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w14.csv"</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>in_week15 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w15.csv"</span>)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>in_week16 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w16.csv"</span>)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>in_week17 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w17.csv"</span>)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>in_week18 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/input_2023_w18.csv"</span>)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>out_week1 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w01.csv"</span>)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>out_week2 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w02.csv"</span>)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>out_week3 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w03.csv"</span>)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>out_week4 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w04.csv"</span>)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>out_week5 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w05.csv"</span>)</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>out_week6 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w06.csv"</span>)</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>out_week7 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w07.csv"</span>)</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>out_week8 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w08.csv"</span>)</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>out_week9 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w09.csv"</span>)</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>out_week10 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w10.csv"</span>)</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>out_week11 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w11.csv"</span>)</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>out_week12 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w12.csv"</span>)</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>out_week13 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w13.csv"</span>)</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>out_week14 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w14.csv"</span>)</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>out_week15 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w15.csv"</span>)</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>out_week16 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w16.csv"</span>)</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>out_week17 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w17.csv"</span>)</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>out_week18 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/train/output_2023_w18.csv"</span>)</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>supplementary <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/supplementary_data.csv"</span>)</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>all_dfs <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">file1 =</span> in_week1, </span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>                <span class="at">file2 =</span> in_week2, </span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>                <span class="at">file3 =</span> in_week3, </span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>                <span class="at">file4 =</span> in_week4, </span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>                <span class="at">file5 =</span> in_week5, </span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>                <span class="at">file6 =</span> in_week6, </span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>                <span class="at">file7 =</span> in_week7, </span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>                <span class="at">file8 =</span> in_week8, </span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>                <span class="at">file9 =</span> in_week9, </span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>                <span class="at">file10 =</span> in_week10, </span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>                <span class="at">file11 =</span> in_week11, </span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>                <span class="at">file12 =</span> in_week12, </span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>                <span class="at">file13 =</span> in_week13, </span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>                <span class="at">file14 =</span> in_week14, </span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>                <span class="at">file15 =</span> in_week15, </span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>                <span class="at">file16 =</span> in_week16, </span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>                <span class="at">file17 =</span> in_week17, </span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>                <span class="at">file18 =</span> in_week18, </span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>                <span class="at">file19 =</span> out_week1, </span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>                <span class="at">file20 =</span> out_week2, </span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>                <span class="at">file21 =</span> out_week3, </span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>                <span class="at">file22 =</span> out_week4, </span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>                <span class="at">file22 =</span> out_week5, </span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>                <span class="at">file24 =</span> out_week6, </span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>                <span class="at">file25 =</span> out_week7, </span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>                <span class="at">file26 =</span> out_week8, </span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>                <span class="at">file27 =</span> out_week9, </span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>                <span class="at">file28 =</span> out_week10, </span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>                <span class="at">file29 =</span> out_week11, </span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a>                <span class="at">file30 =</span> out_week12, </span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>                <span class="at">file31 =</span> out_week13, </span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>                <span class="at">file32 =</span> out_week14, </span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>                <span class="at">file33 =</span> out_week15, </span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>                <span class="at">file34 =</span> out_week16, </span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a>                <span class="at">file35 =</span> out_week17, </span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a>                <span class="at">file36 =</span> out_week18, </span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>                <span class="at">file37 =</span> supplementary</span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a>na_summary <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(<span class="fu">names</span>(all_dfs), <span class="cf">function</span>(name) {</span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> all_dfs[[name]]</span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>  na_counts <span class="ot">&lt;-</span> <span class="fu">colSums</span>(<span class="fu">is.na</span>(df))</span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a>  total_na <span class="ot">&lt;-</span> <span class="fu">sum</span>(na_counts)</span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a>    <span class="at">dataframe =</span> name,</span>
+<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_na =</span> total_na,</span>
+<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns_with_na =</span> <span class="fu">paste</span>(<span class="fu">names</span>(na_counts[na_counts <span class="sc">&gt;</span> <span class="dv">0</span>]), <span class="at">collapse =</span> <span class="st">", "</span>)</span>
+<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a>}) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(total_na <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a><span class="co"># Show N/A values by column</span></span>
+<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a>cols_with_na <span class="ot">&lt;-</span> <span class="cf">function</span>(df) {</span>
+<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a>  na_counts <span class="ot">&lt;-</span> <span class="fu">colSums</span>(<span class="fu">is.na</span>(df))</span>
+<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a>  na_counts[na_counts <span class="sc">&gt;</span> <span class="dv">0</span>]</span>
+<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-109"><a href="#cb1-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-110"><a href="#cb1-110" aria-hidden="true" tabindex="-1"></a><span class="co"># Histogram of NA counts per column for the `supplementary` dataset</span></span>
+<span id="cb1-111"><a href="#cb1-111" aria-hidden="true" tabindex="-1"></a><span class="co"># Get NA counts for each column in supplementary dataset</span></span>
+<span id="cb1-112"><a href="#cb1-112" aria-hidden="true" tabindex="-1"></a>na_by_col <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb1-113"><a href="#cb1-113" aria-hidden="true" tabindex="-1"></a>  <span class="at">column =</span> <span class="fu">names</span>(supplementary),</span>
+<span id="cb1-114"><a href="#cb1-114" aria-hidden="true" tabindex="-1"></a>  <span class="at">na_count =</span> <span class="fu">colSums</span>(<span class="fu">is.na</span>(supplementary))</span>
+<span id="cb1-115"><a href="#cb1-115" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-116"><a href="#cb1-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-117"><a href="#cb1-117" aria-hidden="true" tabindex="-1"></a><span class="co"># Show which columns have the most NAs</span></span>
+<span id="cb1-118"><a href="#cb1-118" aria-hidden="true" tabindex="-1"></a>na_by_col_summary <span class="ot">&lt;-</span> na_by_col <span class="sc">%&gt;%</span></span>
+<span id="cb1-119"><a href="#cb1-119" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(na_count <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-120"><a href="#cb1-120" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(na_count))</span>
+<span id="cb1-121"><a href="#cb1-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-122"><a href="#cb1-122" aria-hidden="true" tabindex="-1"></a><span class="co"># Bar chart of NA counts by column (only showing columns with NAs)</span></span>
+<span id="cb1-123"><a href="#cb1-123" aria-hidden="true" tabindex="-1"></a>na_by_col <span class="sc">%&gt;%</span></span>
+<span id="cb1-124"><a href="#cb1-124" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(na_count <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-125"><a href="#cb1-125" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(column, <span class="sc">-</span>na_count), <span class="at">y =</span> na_count)) <span class="sc">+</span></span>
+<span id="cb1-126"><a href="#cb1-126" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb1-127"><a href="#cb1-127" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb1-128"><a href="#cb1-128" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"NA Counts by Column"</span>,</span>
+<span id="cb1-129"><a href="#cb1-129" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Column"</span>,</span>
+<span id="cb1-130"><a href="#cb1-130" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Number of NA Values"</span></span>
+<span id="cb1-131"><a href="#cb1-131" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-132"><a href="#cb1-132" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb1-133"><a href="#cb1-133" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="data_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Optional: Show which columns have the most NAs</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>na_by_col <span class="sc">%&gt;%</span> </span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(na_count <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(na_count))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>                                               column na_count
-penalty_yards                           penalty_yards    17549
-yardline_side                           yardline_side      251
-pass_location_type                 pass_location_type       20
-team_coverage_man_zone         team_coverage_man_zone        5
-team_coverage_type                 team_coverage_type        5
-route_of_targeted_receiver route_of_targeted_receiver        4
-play_action                               play_action        1
-dropback_type                           dropback_type        1
-dropback_distance                   dropback_distance        1</code></pre>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># If you want a bar chart showing NA counts for each specific column (easier to see which columns have NAs):</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Bar chart of NA counts by column (only showing columns with NAs)</span></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>na_by_col <span class="sc">%&gt;%</span></span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(na_count <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(column, na_count), <span class="at">y =</span> na_count)) <span class="sc">+</span></span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill =</span> <span class="st">"#7fcdbb"</span>) <span class="sc">+</span></span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"NA Counts by Column"</span>,</span>
-<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Column"</span>,</span>
-<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Number of NA Values"</span></span>
-<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="data_files/figure-html/unnamed-chunk-7-2.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="data_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
+<p>Clearly, we see that penalty_yards is the main culprit of any N/A values in the data set, containing over 17000 NAs. Lets recreate this graph, capping the X axis at 300 so that we can more clearly see the distribution of NAs across the other columns:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get NA counts for each column in supplementary dataset</span></span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>na_by_col <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">column =</span> <span class="fu">names</span>(supplementary),</span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">na_count =</span> <span class="fu">colSums</span>(<span class="fu">is.na</span>(supplementary))</span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(na_count <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(na_count))</span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Cap penalty_yards for better visualization</span></span>
-<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>na_by_col_capped <span class="ot">&lt;-</span> na_by_col <span class="sc">%&gt;%</span></span>
-<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">na_count_display =</span> <span class="fu">ifelse</span>(column <span class="sc">==</span> <span class="st">"penalty_yards"</span>, <span class="dv">300</span>, na_count),</span>
-<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> <span class="fu">ifelse</span>(column <span class="sc">==</span> <span class="st">"penalty_yards"</span>, <span class="st">"17k+"</span>, <span class="fu">as.character</span>(na_count))</span>
-<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Bar chart with capped scale</span></span>
-<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(na_by_col_capped, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(column, na_count), <span class="at">y =</span> na_count_display)) <span class="sc">+</span></span>
-<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill =</span> <span class="st">"#7fcdbb"</span>) <span class="sc">+</span></span>
-<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> label), <span class="at">hjust =</span> <span class="sc">-</span><span class="fl">0.1</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
-<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
-<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">300</span>), <span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">mult =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.1</span>))) <span class="sc">+</span></span>
-<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"NA Counts by Column (Supplementary Data)"</span>,</span>
-<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"penalty_yards (17k+) capped for better visibility of other columns"</span>,</span>
-<span id="cb30-25"><a href="#cb30-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Column"</span>,</span>
-<span id="cb30-26"><a href="#cb30-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Number of NA Values"</span></span>
-<span id="cb30-27"><a href="#cb30-27" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb30-28"><a href="#cb30-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get NA counts for each column in supplementary dataset</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>na_by_col <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">column =</span> <span class="fu">names</span>(supplementary),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">na_count =</span> <span class="fu">colSums</span>(<span class="fu">is.na</span>(supplementary))</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(na_count <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(na_count))</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Cap penalty_yards for better visualization</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>na_by_col_capped <span class="ot">&lt;-</span> na_by_col <span class="sc">%&gt;%</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">na_count_display =</span> <span class="fu">ifelse</span>(column <span class="sc">==</span> <span class="st">"penalty_yards"</span>, <span class="dv">300</span>, na_count),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> <span class="fu">ifelse</span>(column <span class="sc">==</span> <span class="st">"penalty_yards"</span>, <span class="st">"17k+"</span>, <span class="fu">as.character</span>(na_count))</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Bar chart with capped scale</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(na_by_col_capped, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(column, <span class="sc">-</span>na_count), <span class="at">y =</span> na_count_display)) <span class="sc">+</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> label), <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.5</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">350</span>), <span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">mult =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>))) <span class="sc">+</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"NA Counts by Column (Supplementary Data)"</span>,</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"penalty_yards (17k+) capped for better visibility of other columns"</span>,</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Column"</span>,</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Number of NA Values"</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="data_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="data_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>These graphs show that the vast majority of N/A data comes from the penalty_yards column, which is to be exapected, as most plays in the data set did not result in any penalties, and therefore would not have any penalty yards associated with them.</p>
+<p>As a table:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(na_by_col_summary, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     column na_count
+              penalty_yards    17549
+              yardline_side      251
+         pass_location_type       20
+     team_coverage_man_zone        5
+         team_coverage_type        5
+ route_of_targeted_receiver        4
+                play_action        1
+              dropback_type        1
+          dropback_distance        1</code></pre>
+</div>
+</div>
 
 
 </section>
