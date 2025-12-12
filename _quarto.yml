@@ -22,10 +22,10 @@ book:
   chapters:
     - index.qmd
     - data.qmd
-    - Formation_Vs_Coverage.qmd
-    - more_results.qmd
-    - ADOT.qmd
-    - Before_After_BYE_Movement.qmd
+    - Results_Formation_Vs_Coverage.qmd
+    - Results_Separation_Analysis.qmd
+    - Results_ADOT.qmd
+    - Before_After_BYE_Movemend.qmd
     - conclusion.qmd
 
 
