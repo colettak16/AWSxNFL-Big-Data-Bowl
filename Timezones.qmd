@@ -5,8 +5,9 @@ editor: visual
 
 ```{r}
 library(dplyr)
+library(ggplot2)
 library(scales)
-scores <- read.csv("data/train/2023NFLSCORES.csv")
+scores <- read.csv("data/2023NFLSCORES.csv")
 scores <- scores %>%
   rename(
     Home_Team = X.1,
@@ -53,7 +54,7 @@ Another aspect of the schedule we were interested in was how travel affected the
 This is what we would expect with the results, as it is generally known that home teams have an advantage. Beyond just a win record, we can see that blowouts are more likely to occur from home teams as well. From the graph, we can see that there were 6 games where the home team lost by 25 or more points. We can compare that with away teams which were blown out by 25 points or more 15 times over the regular season, one of which was by 50 points (Miami Dolphins hosting the Denver Broncos).
 
 ```{r}
-{r}
+
 m <- lm(point_diff ~ tz_diff, data = games)
 plot(m)
 coef(m)["tz_diff"]

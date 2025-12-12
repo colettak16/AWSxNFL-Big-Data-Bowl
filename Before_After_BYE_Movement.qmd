@@ -1918,7 +1918,7 @@ Further looking into the schedule, we were curious if this still held true for a
 ```{r}
 library(dplyr)
 library(scales)
-scores <- read.csv("data/train/2023NFLSCORES.csv")
+scores <- read.csv("data/2023NFLSCORES.csv")
 scores <- scores %>%
   rename(
     Home_Team = X.1,
