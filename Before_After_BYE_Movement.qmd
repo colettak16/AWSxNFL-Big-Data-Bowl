@@ -128,17 +128,6 @@ total_distanceLAC4<- total_distanceLAC4 %>% mutate(group = "PRE")
 total_distanceLAC6<- total_distanceLAC6 %>% mutate(group = "POST")
 LAC_Combined <- bind_rows(total_distanceLAC4, total_distanceLAC6)
 
-#total_distance_PRE <- bind_rows(total_distanceCLE4, total_distanceLAC4)
-#total_distance_POST <- bind_rows(total_distanceCLE6, total_distanceLAC6)
-
-ggplot(LAC_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal()
 ```
 
 Looking continuing the investigation we see that again for the Los Angelos Chargers, the distribution of movement before the bye week is much wider than the post bye week.
@@ -183,17 +172,7 @@ total_distanceSEA6 <- SEA_W6_plays %>%
 total_distanceSEA4<- total_distanceSEA4 %>% mutate(group = "PRE")
 total_distanceSEA6<- total_distanceSEA6 %>% mutate(group = "POST")
 SEA_Combined <- bind_rows(total_distanceSEA4, total_distanceSEA6)
-#total_distance_PRE <- bind_rows(total_distance_PRE, total_distanceSEA4)
-#total_distance_POST <- bind_rows(total_distance_POST, total_distanceSEA6)
-ggplot(SEA_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal()
-print(SEA_Combined)
+
 ```
 
 ```{r}
@@ -237,8 +216,7 @@ total_distanceTB4<- total_distanceTB4 %>% mutate(group = "PRE")
 total_distanceTB6<- total_distanceTB6 %>% mutate(group = "POST")
 TB_Combined <- bind_rows(total_distanceTB4, total_distanceTB6)
 
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceTB4)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceTB6)
+
 ggplot(TB_Combined, aes(x = total_distance, fill = group)) +
   geom_density(alpha = 0.6, color = NA) +
   labs(
@@ -290,17 +268,8 @@ total_distanceGB7 <- GB_W7_plays %>%
 total_distanceGB5<- total_distanceGB5 %>% mutate(group = "PRE")
 total_distanceGB7<- total_distanceGB7 %>% mutate(group = "POST")
 GB_Combined <- bind_rows(total_distanceGB5, total_distanceGB7)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceGB5)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceGB7)
 
-ggplot(GB_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal()
+
 ```
 
 ```{r}
@@ -344,17 +313,6 @@ total_distancePIT5<- total_distancePIT5 %>% mutate(group = "PRE")
 total_distancePIT7<- total_distancePIT7 %>% mutate(group = "POST")
 PIT_Combined <- bind_rows(total_distancePIT5, total_distancePIT7)
 
-print(PIT_Combined)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distancePIT5)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distancePIT7)
-ggplot(PIT_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal()
 ```
 
 ```{r}
@@ -397,17 +355,7 @@ total_distanceCAR8 <- CAR_W8_plays %>%
 total_distanceCAR6<- total_distanceCAR6 %>% mutate(group = "PRE")
 total_distanceCAR8<- total_distanceCAR8 %>% mutate(group = "POST")
 CAR_Combined <- bind_rows(total_distanceCAR6, total_distanceCAR8)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceCAR6)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceCAR8)
 
-ggplot(CAR_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal()
 ```
 
 ```{r}
@@ -450,17 +398,7 @@ total_distanceCIN8 <- CIN_W8_plays %>%
 total_distanceCIN6<- total_distanceCIN6 %>% mutate(group = "PRE")
 total_distanceCIN8<- total_distanceCIN8 %>% mutate(group = "POST")
 CIN_Combined <- bind_rows(total_distanceCIN6, total_distanceCIN8)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceCIN6)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceCIN8)
 
-ggplot(CIN_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal()
 ```
 
 ```{r}
@@ -503,17 +441,7 @@ total_distanceDAL8 <- DAL_W8_plays %>%
 total_distanceDAL6<- total_distanceDAL6 %>% mutate(group = "PRE")
 total_distanceDAL8<- total_distanceDAL8 %>% mutate(group = "POST")
 DAL_Combined <- bind_rows(total_distanceDAL6, total_distanceDAL8)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceDAL6)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceDAL8)
 
-print(ggplot(DAL_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
 ```
 
 ```{r}
@@ -556,17 +484,7 @@ total_distanceHOU8 <- HOU_W8_plays %>%
 total_distanceHOU6<- total_distanceHOU6 %>% mutate(group = "PRE")
 total_distanceHOU8<- total_distanceHOU8 %>% mutate(group = "POST")
 HOU_Combined <- bind_rows(total_distanceHOU6, total_distanceHOU8)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceHOU6)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceHOU8)
 
-print(ggplot(HOU_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
 ```
 
 ```{r}
@@ -609,17 +527,7 @@ total_distanceNYJ8 <- NYJ_W8_plays %>%
 total_distanceNYJ6<- total_distanceNYJ6 %>% mutate(group = "PRE")
 total_distanceNYJ8<- total_distanceNYJ8 %>% mutate(group = "POST")
 NYJ_Combined <- bind_rows(total_distanceNYJ6, total_distanceNYJ8)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceNYJ6)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceNYJ8)
 
-print(ggplot(NYJ_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
 ```
 
 ```{r}
@@ -662,17 +570,7 @@ total_distanceTEN8 <- TEN_W8_plays %>%
 total_distanceTEN6<- total_distanceTEN6 %>% mutate(group = "PRE")
 total_distanceTEN8<- total_distanceTEN8 %>% mutate(group = "POST")
 TEN_Combined <- bind_rows(total_distanceTEN6, total_distanceTEN8)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceTEN6)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceTEN8)
 
-print(ggplot(TEN_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
 ```
 
 ```{r}
@@ -715,17 +613,7 @@ total_distanceDB10 <- DB_W10_plays %>%
 total_distanceDB8<- total_distanceDB8 %>% mutate(group = "PRE")
 total_distanceDB10<- total_distanceDB10 %>% mutate(group = "POST")
 DB_Combined <- bind_rows(total_distanceDB8, total_distanceDB10)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceDB8)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceDB10)
 
-print(ggplot(DB_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
 ```
 
 ```{r}
@@ -769,17 +657,7 @@ total_distanceDL10 <- DL_W10_plays %>%
 total_distanceDL8<- total_distanceDL8 %>% mutate(group = "PRE")
 total_distanceDL10<- total_distanceDL10 %>% mutate(group = "POST")
 DL_Combined <- bind_rows(total_distanceDL8, total_distanceDL10)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceDL8)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceDL10)
 
-print(ggplot(DL_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
 ```
 
 ```{r}
@@ -822,17 +700,7 @@ total_distanceJAX10 <- JAX_W10_plays %>%
 total_distanceJAX8<- total_distanceJAX8 %>% mutate(group = "PRE")
 total_distanceJAX10<- total_distanceJAX10 %>% mutate(group = "POST")
 JAX_Combined <- bind_rows(total_distanceJAX8, total_distanceJAX10)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceJAX8)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceJAX10)
 
-print(ggplot(JAX_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
 ```
 
 ```{r}
@@ -875,17 +743,7 @@ total_distanceSF10 <- SF_W10_plays %>%
 total_distanceSF8<- total_distanceSF8 %>% mutate(group = "PRE")
 total_distanceSF10<- total_distanceSF10 %>% mutate(group = "POST")
 SF_Combined <- bind_rows(total_distanceSF8, total_distanceSF10)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceSF8)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceSF10)
 
-print(ggplot(SF_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
 ```
 
 ```{r}
@@ -929,17 +787,7 @@ total_distanceKC11 <- KC_W11_plays %>%
 total_distanceKC9<- total_distanceKC9 %>% mutate(group = "PRE")
 total_distanceKC11<- total_distanceKC11 %>% mutate(group = "POST")
 KC_Combined <- bind_rows(total_distanceKC9, total_distanceKC11)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceKC9)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceKC11)
 
-print(ggplot(KC_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
 ```
 
 ```{r}
@@ -983,17 +831,7 @@ total_distanceLAR11 <- LAR_W11_plays %>%
 total_distanceLAR9<- total_distanceLAR9 %>% mutate(group = "PRE")
 total_distanceLAR11<- total_distanceLAR11 %>% mutate(group = "POST")
 LAR_Combined <- bind_rows(total_distanceLAR9, total_distanceLAR11)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceLAR9)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceLAR11)
 
-print(ggplot(LAR_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
 ```
 
 ```{r}
@@ -1037,17 +875,7 @@ total_distanceMIA11 <- MIA_W11_plays %>%
 total_distanceMIA9<- total_distanceMIA9 %>% mutate(group = "PRE")
 total_distanceMIA11<- total_distanceMIA11 %>% mutate(group = "POST")
 MIA_Combined <- bind_rows(total_distanceMIA9, total_distanceMIA11)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceMIA9)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceMIA11)
 
-print(ggplot(MIA_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
 ```
 
 ```{r}
@@ -1091,17 +919,7 @@ total_distancePHI11 <- PHI_W11_plays %>%
 total_distancePHI9<- total_distancePHI9 %>% mutate(group = "PRE")
 total_distancePHI11<- total_distancePHI11 %>% mutate(group = "POST")
 PHI_Combined <- bind_rows(total_distancePHI9, total_distancePHI11)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distancePHI9)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distancePHI11)
 
-print(ggplot(PHI_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
 ```
 
 ```{r}
@@ -1145,17 +963,9 @@ total_distanceATL12 <- ATL_W12_plays %>%
 total_distanceATL10<- total_distanceATL10 %>% mutate(group = "PRE")
 total_distanceATL12<- total_distanceATL12 %>% mutate(group = "POST")
 ATL_Combined <- bind_rows(total_distanceATL10, total_distanceATL12)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceATL10)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceATL12)
 
-print(ggplot(ATL_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
+
+
 ```
 
 ```{r}
@@ -1199,17 +1009,7 @@ total_distanceIND12 <- IND_W12_plays %>%
 total_distanceIND10<- total_distanceIND10 %>% mutate(group = "PRE")
 total_distanceIND12<- total_distanceIND12 %>% mutate(group = "POST")
 IND_Combined <- bind_rows(total_distanceIND10, total_distanceIND12)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceIND10)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceIND12)
 
-print(ggplot(IND_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
 ```
 
 ```{r}
@@ -1253,17 +1053,7 @@ total_distanceNE12 <- NE_W12_plays %>%
 total_distanceNE10<- total_distanceNE10 %>% mutate(group = "PRE")
 total_distanceNE12<- total_distanceNE12 %>% mutate(group = "POST")
 NE_Combined <- bind_rows(total_distanceNE10, total_distanceNE12)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceNE10)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceNE12)
 
-print(ggplot(NE_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
 ```
 
 ```{r}
@@ -1307,17 +1097,7 @@ total_distanceNO12 <- NO_W12_plays %>%
 total_distanceNO10<- total_distanceNO10 %>% mutate(group = "PRE")
 total_distanceNO12<- total_distanceNO12 %>% mutate(group = "POST")
 NO_Combined <- bind_rows(total_distanceNO10, total_distanceNO12)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceNO10)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceNO12)
 
-print(ggplot(NO_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
 ```
 
 ```{r}
@@ -1361,17 +1141,7 @@ total_distanceBAL14 <- BAL_W14_plays %>%
 total_distanceBAL12<- total_distanceBAL12 %>% mutate(group = "PRE")
 total_distanceBAL14<- total_distanceBAL14 %>% mutate(group = "POST")
 BAL_Combined <- bind_rows(total_distanceBAL12, total_distanceBAL14)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceBAL12)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceBAL14)
 
-print(ggplot(BAL_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
 ```
 
 ```{r}
@@ -1415,17 +1185,7 @@ total_distanceBUF14 <- BUF_W14_plays %>%
 total_distanceBUF12<- total_distanceBUF12 %>% mutate(group = "PRE")
 total_distanceBUF14<- total_distanceBUF14 %>% mutate(group = "POST")
 BUF_Combined <- bind_rows(total_distanceBUF12, total_distanceBUF14)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceBUF12)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceBUF14)
 
-print(ggplot(BUF_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
 ```
 
 ```{r}
@@ -1469,17 +1229,7 @@ total_distanceCHI14 <- CHI_W14_plays %>%
 total_distanceCHI12<- total_distanceCHI12 %>% mutate(group = "PRE")
 total_distanceCHI14<- total_distanceCHI14 %>% mutate(group = "POST")
 CHI_Combined <- bind_rows(total_distanceCHI12, total_distanceCHI14)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceCHI12)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceCHI14)
 
-print(ggplot(CHI_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
 ```
 
 ```{r}
@@ -1524,17 +1274,7 @@ total_distanceLAV14 <- LAV_W14_plays %>%
 total_distanceLAV12<- total_distanceLAV12 %>% mutate(group = "PRE")
 total_distanceLAV14<- total_distanceLAV14 %>% mutate(group = "POST")
 LAV_Combined <- bind_rows(total_distanceLAV12, total_distanceLAV14)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceLAV12)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceLAV14)
 
-print(ggplot(LAV_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
 ```
 
 ```{r}
@@ -1579,17 +1319,7 @@ total_distanceMIN14 <- MIN_W14_plays %>%
 total_distanceMIN12<- total_distanceMIN12 %>% mutate(group = "PRE")
 total_distanceMIN14<- total_distanceMIN14 %>% mutate(group = "POST")
 MIN_Combined <- bind_rows(total_distanceMIN12, total_distanceMIN14)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceMIN12)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceMIN14)
 
-print(ggplot(MIN_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
 ```
 
 ```{r}
@@ -1634,17 +1364,7 @@ total_distanceNYG14 <- NYG_W14_plays %>%
 total_distanceNYG12<- total_distanceNYG12 %>% mutate(group = "PRE")
 total_distanceNYG14<- total_distanceNYG14 %>% mutate(group = "POST")
 NYG_Combined <- bind_rows(total_distanceNYG12, total_distanceNYG14)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceNYG12)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceNYG14)
 
-print(ggplot(NYG_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
 ```
 
 ```{r}
@@ -1689,17 +1409,8 @@ total_distanceARI15 <- ARI_W15_plays %>%
 total_distanceARI13<- total_distanceARI13 %>% mutate(group = "PRE")
 total_distanceARI15<- total_distanceARI15 %>% mutate(group = "POST")
 ARI_Combined <- bind_rows(total_distanceARI13, total_distanceARI15)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceARI13)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceARI15)
 
-print(ggplot(ARI_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
+
 ```
 
 ```{r}
@@ -1744,17 +1455,7 @@ total_distanceWAS15 <- WAS_W15_plays %>%
 total_distanceWAS13<- total_distanceWAS13 %>% mutate(group = "PRE")
 total_distanceWAS15<- total_distanceWAS15 %>% mutate(group = "POST")
 WAS_Combined <- bind_rows(total_distanceWAS13, total_distanceWAS15)
-#total_distance_PRE <- bind_cols(total_distance_PRE, total_distanceWAS13)
-#total_distance_POST <- bind_cols(total_distance_POST, total_distanceWAS15)
 
-print(ggplot(WAS_Combined, aes(x = total_distance, fill = group)) +
-  geom_density(alpha = 0.6, color = NA) +
-  labs(
-    title = "Distribution of Player Distances by Team",
-    x = "Distance (yards)",
-    y = "Density"
-  ) +
-  theme_minimal())
 ```
 
 ```{r}
@@ -1861,10 +1562,6 @@ print(ggplot(BYE_WEEK_TOTAL_DIST, aes(x = total_distance, fill = group )) +
 ```
 
 Faceting this distribution by where the bye week occurs, we see that the global observation holds mostly true for each week. Between all weeks, week 6 seems to have the largest difference between pre and post, with the pre-bye week having a larger percentage of the distribution on the right.
-
-```{R}
-total_distance_POST[is.na(total_distance_POST$BYE_WEEK), ]
-```
 
 ```{r}
 CLE4_avg <- total_distanceCLE4 %>%
@@ -2219,18 +1916,6 @@ ggplot(TEST, aes(x = avg_distance, y = factor(BYE_WEEK), color = group)) +
 Further looking into the schedule, we were curious if this still held true for all weeks or if we saw a difference in benefit of the bye as the season went along. While we first tried to map the distances in faceted density plots, we were not able to see much of a difference for any of them. So in addition we decided to look at a dot plot of the average distance of a player per play throughout a game. We first averaged the distance of each player per play throughout the game and then averaged all the teams with the same bye-week and plotted the pre and post movement on a Cleveland Dot-plot. From this graph, it is not clear that there is much differentiation between when the bye week occurs and how much it appeared to increase energy. Teams with a bye week 5,6, 7, and 11 have the largest separation in and out of the bye week, with week 6 having the largest separation. This might be because this early into the season teams are largely still trying to build themselves up and this break might mess up their rhythm. But as the season continues we see that the separation between the two games tightens for 10, 13, and 14. It is interesting to note that only two weeks, week 9 and 10, had a higher average distance returning from the bye week.
 
 ```{r}
-library(scales)
-print(ALL_BYE)
-
-ggplot(ALL_BYE, aes(x = BYE_WEEK, y = total_distance, color = group)) + geom_point(size = 3) + theme_minimal() + scale_x_continuous(breaks = pretty_breaks())+
-  labs(
-  title = "Pre- vs. Post-Bye Average Distance by Bye Week ",
-  x = 'Bye Week',
-  y = "Avg. Dist. of Player's Movement Per Play Over Entire Game"
-)
-```
-
-```{r}
 library(dplyr)
 library(scales)
 scores <- read.csv("data/train/2023NFLSCORES.csv")
@@ -2264,14 +1949,10 @@ games <- games %>%
     Away_Score = as.numeric(Away_Score),
     home_offset = tz_map[home_tz],
     away_offset = tz_map[away_tz],
-    tz_diff = home_offset - away_offset,
+    tz_diff = abs(home_offset - away_offset),
     point_diff = Away_Score - Home_Score,
   )
 
-ggplot(games, aes(x = tz_diff, y = point_diff)) + geom_point(size = 3) + theme_minimal() + scale_x_continuous(breaks = pretty_breaks())
-```
-
-```{r}
 ggplot(games, aes(x = tz_diff, y = point_diff)) + geom_point(size = 3) + geom_smooth(method = "lm", se = TRUE, color = 'red') + theme_minimal() +
   scale_x_continuous(breaks = pretty_breaks()) + labs(
     x = 'Away Team Time Zone Difference',
@@ -2279,26 +1960,17 @@ ggplot(games, aes(x = tz_diff, y = point_diff)) + geom_point(size = 3) + geom_sm
   )
 ```
 
-Another aspect of the schedule we were interested in was how travel affected the performance of teams. In order to look at this, we plotted the point differential of the away team and the home team to the time zone difference the away team faced. When we plotted a line, we saw that it was flat with almost no slope. This shows that home teams traveling farther for their matches do not necessarily do worse. We shouldn't be worried that the Eagles have a game in Tampa any more than if they have one in San Francisco. Though the line didn't have much slope, what was interesting to discover was that it did have a negative intercept. A negative intercept for a point differential at an away game means that on average away teams in 2023 performed worse than home teams.
+Another aspect of the schedule we were interested in was how travel affected the performance of teams. In order to look at this, we plotted the point differential of the away team and the home team to the time zone difference the away team faced. Though the the linear regression line has a slope of .79 for every time zone crossed, signifying for every timezone we cross we should expect our team to score .79 more points per game. However, the 95% confidence interval ranges from (-.90 , 2.49) meaning that we cannot be confident our slope is non-zero or even positive. Overall this shows that home teams traveling farther for their matches do not perform noticebly worse. Fans shouldn't be more worried that the Eagles have a game in San Francisco compared to Tampa. However, we did find that there was a negative intercept of -3.58 with a 95% confidence interval ranging from (-6.15, -1.00), meaning we can be confident that our intercept is indeed negative. This negative intercept for a point differential at an away game means that on average away teams in 2023 performed worse than home teams.
 
-This is interesting since the hosting the game is generally thought of as an advantage to the home team and teams do on average have a higher win percentage at home. What this is then suggesting is that when blow out games occur, the away team is more often the team to be the winner. And within the graph we can see that to be the case. From the graph, we can see that there were 6 games where the away team lost by 25 or more points. We can compare that with home teams that lost at least 15, one of which was by 50 points.
+This is what we would expect with the results, as it is generally known that home teams have an advantage. Beyond just a win record, we can see that blowouts are more likely to occur from home teams as well. From the graph, we can see that there were 6 games where the home team lost by 25 or more points. We can compare that with away teams which were blown out by 25 points or more 15 times over the regular season, one of which was by 50 points (Miami Dolphins hosting the Denver Broncos).
 
-```{r}
-ggplot(games, aes(x = tz_diff, y = point_diff)) + geom_point(size = 3) + stat_smooth(method = 'lm', formula = y ~exp(x), se = FALSE, color = 'red') + theme_minimal() +
-  scale_x_continuous(breaks = pretty_breaks()) + labs(
-    x = 'Away Team Time Zone Difference',
-    y = 'Away Team Game Point Differential'
-  )
-```
+Even when accounting for
 
 ```{r}
-far_away <- games %>%
-  filter(tz_diff != 0)
-
-
-ggplot(far_away, aes(x = tz_diff, y = point_diff)) + geom_point(size = 3) + stat_smooth(method = 'lm', formula = y ~exp(x), se = FALSE, color = 'red') + theme_minimal() +
-  scale_x_continuous(breaks = pretty_breaks()) + labs(
-    x = 'Away Team Time Zone Difference',
-    y = 'Away Team Game Point Differential'
-  )
+m <- lm(point_diff ~ tz_diff, data = games)
+plot(m)
+coef(m)["tz_diff"]
+confint(m, "tz_diff", level = 0.95)
+coef(m)["(Intercept)"]
+confint(m, "(Intercept)", level = 0.95)
 ```
