@@ -56,7 +56,6 @@ This is what we would expect with the results, as it is generally known that hom
 ```{r}
 
 m <- lm(point_diff ~ tz_diff, data = games)
-plot(m)
 coef(m)["tz_diff"]
 confint(m, "tz_diff", level = 0.95)
 coef(m)["(Intercept)"]
