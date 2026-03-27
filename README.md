@@ -1,62 +1,42 @@
-This repo contains a [Quarto book](https://quarto.org/docs/books/) template for the EDAV final project.
+# AWS x NFL Big Data Bowl
 
-## Follow these instructions carefully
+**Authors:** Kyle Coletta & Connor Feldman
 
-*If you have any difficulties or have feedback of any kind, please [file an issue](https://github.com/jtr13/quarto-edav-template/issues) or ask questions in the [Discussions](https://github.com/jtr13/quarto-edav-template/discussions) section.*
+## Project Overview
 
-[Video tutorial](https://www.youtube.com/watch?v=emgS2JI4jCk) (walkthrough of steps below)
+This project is a data science analysis of the 2023 NFL season submitted to the AWS x NFL Big Data Bowl competition. It uses official NFL player tracking data — frame-by-frame GPS coordinates for every player on every passing play — to investigate six research questions spanning offensive strategy, individual player performance, and environmental factors. The analysis is published as an interactive Quarto book deployed to GitHub Pages.
 
-### Copy this template (GitHub)
+## Tech Stack
 
-- [ ] 1. Click the green "Use this template" button above and choose "Create a new repository". If you don't see the "Use this template" option, **log in to GitHub**. DO NOT FORK THE REPO. Choose a descriptive name for your repo, such as "federalbudget" or "AIDSdeaths". (If you change your topic before you do any work, delete the repo and start over.)
+- **R** — primary analysis language
+- **Quarto** — literate programming framework for reproducible, book-style output
+- **dplyr / tidyverse** — data wrangling (filtering, joining, aggregating across 18 weeks of CSVs)
+- **ggplot2** — all visualizations (boxplots, density plots, faceted grids, choropleth maps)
+- **maps** — US state-level choropleth for ADOT geographic analysis
+- **lubridate** — date parsing for BYE week and game schedule handling
+- **reticulate** — Python interop bridge
+- **GitHub Pages** — static hosting of the rendered `/docs` output
 
-- [ ] 2. Leave the setting for viewing the repo as "Public". (Otherwise, we will not be able to access your rendered book.)
+## Architecture & Design Decisions
 
-- [ ] 3. In the Description field, write "Source files for final project" then click "Create repository".
+The project is structured as a **Quarto book** — each analysis chapter is a self-contained `.qmd` file that loads raw data, performs feature engineering, and renders visualizations inline. There is no shared R package or module layer; data loading and preprocessing are repeated per-chapter, which keeps each chapter independently reproducible at the cost of some redundancy.
 
-### Set up Pages (GitHub)
+**Data layout:** The tracking data is split into 36 CSVs (18 `input_2023_wNN.csv` + 18 `output_2023_wNN.csv`). Each analysis loads only the weeks it needs, then `bind_rows()` them into a single data frame. The `supplementary_data.csv` (18K rows, 41 columns of play-level metadata) is the join key that links tracking frames to play context like formation, coverage type, and EPA.
 
-- [ ] 1. You've now left the template page and are viewing your new repo on GitHub. On the home page, click Settings. Click the "Pages" section on the left. In the Build and Deployment section, set Source to "Deploy from a branch" (Classic Pages experience) and Branch to main with /docs folder. Click Save.
+**Rendering:** `_quarto.yml` configures the book to output to `/docs` with `code-fold: true`, so published pages show narrative and figures by default with code hidden behind a toggle — appropriate for a competition submission read by non-technical judges.
 
-- [ ] 2. Click the little gear button near "About" on the top right side of the home page of the repo and check the "Use your Github Pages website" box under "Website". Click "Save changes". Test the link and you should see a web site with a stick figure on it. It may take a few minutes to build so if it's not working do a few more steps and then come back to check.
+**Statistical rigor:** Each analysis enforces minimum sample size cutoffs (e.g., 50+ routes per receiver, 100+ plays per formation-coverage combination) before drawing conclusions, and the one formal regression (timezone analysis) reports 95% confidence intervals explicitly.
 
-### Copy the repo link (GitHub)
+## Key Features
 
-- [ ] 1. Click the green Code button, choose "HTTPS" and copy the link below. It should have the format: https&#xfeff;://github.com/[USERNAME]/[REPONAME].git
+- **Formation vs. Coverage Effectiveness (EPA):** Assigns offensive/defensive WPA correctly based on `possession_team` vs. `home_team_abbr`, then compares median EPA across all formation × coverage combinations with 100+ plays. Finds Pistol vs. Cover 3 Zone produces the highest median EPA; Cover 3 Zone appears in the top 2 worst defenses against every formation.
 
-### Clone the repo (RStudio)
+- **Receiver Separation at Target:** At the ball-arrival frame (identified as `max(frame_id)` per play), computes Euclidean distance between the targeted receiver and every defender on the field, then takes the minimum — the "nearest defender distance." Averaged across 50+ targets per receiver, this surfaces elite route runners (Wan'Dale Robinson, Rashee Rice, Tyler Lockett, Jayden Reed) without relying on catch or yards-after-contact outcomes.
 
-- [ ] 1. Clone your new repo with *File, New Project..., Version Control, Git* in RStudio. You will need to paste the link from the previous step in the Repository URL box. If it's not automatically populated, enter the repo name in the "Project directory name:" box. Choose the location of the project.
+- **Play Action Effect on Separation:** Joins tracking data with `supplementary_data` on `play_action` flag, then overlays `geom_density` distributions of separation distance for Play Action vs. standard passes, faceted by route type (Hitch, Slant, Post, Corner, etc.). Finds Play Action consistently shifts the separation distribution rightward across all route types.
 
-### Edit `_quarto.yml` (RStudio)
+- **ADOT Geographic Analysis (Choropleth):** Tests the cold-weather-shortens-passes hypothesis by grouping weeks 1–4 as "Early" and weeks 15–18 as "Late," filtering to outdoor stadium teams only (excludes 10 dome teams by hardcoded list), mapping each team to its home state, and computing `Late_ADOT − Early_ADOT`. Renders as a US choropleth with a diverging blue-to-red color scale. Finds no consistent weather signal — several cold-climate teams (Seattle, Green Bay, Pittsburgh) show *increased* ADOT late season.
 
-Tip: From the file pane in RStudio, open `README.md`, which contains these instructions. You can delete steps as you complete them.
+- **BYE Week Movement Analysis:** For six teams with known BYE week timing, calculates total distance traveled per player per play by summing frame-to-frame Euclidean displacement (`sqrt(dx² + dy²)`) across all tracking frames. Compares density distributions for the week before vs. the week after each team's BYE. Finds no meaningful change in movement intensity post-rest.
 
-- [ ] 1. Change the all caps info in the `title:`, `author:` and `repo-url` fields in the YAML (top) section of `_quarto.yml` to your info. (Note: it's very important to maintain the indenting structure in this file precisely as is -- be careful!)
-
-### Render the book (RStudio)
-
-- [ ] 1. If you haven't already, click "Help" "Check for Updates" to make sure you have the latest version of RStudio (and thus have Quarto installed.)
-
-- [ ] 2. Render the web site locally by clicking the "Build" tap on the right and then "Render Book".
-
-- [ ] 3. Use `browseURL("docs/index.html")` to view your book locally (or just open `docs/index.html` in a browser).
-
-- [ ] 4. If it looks good, commit and push all changed files to GitHub. 
-
-(You will need to repeat steps 2 and 4 every time you wish to update the book on GitHub Pages.)
-
-### Update README (GitHub or RStudio)
-
-- [ ] 1. Delete the content of this **README** and add a short description of your project in its place. If you're working locally, be sure to commit and push the changes to GitHub.
-
-### Optional
-
-- [ ] 1. Choose a theme from [https://bootswatch.com/](https://bootswatch.com/) and replace "cosmo" in `_quarto.yml` with your prefered theme.
-
-### Additional features
-
-Please consult the official guide to **quarto** book websites: [https://quarto.org/docs/books/](https://quarto.org/docs/books/)
-
-
-
+- **Timezone Travel Regression:** Maps all 32 teams to one of four time zones (ET, CT, MT, PT), computes the absolute timezone difference for each away game, and fits `point_diff ~ tz_diff` (where `point_diff = away_score − home_score`). The timezone slope is +0.79 points per zone crossed but non-significant (95% CI: −0.90, 2.49); the intercept of −3.58 (CI: −6.15, −1.00) confirms a significant home-field advantage independent of travel.
